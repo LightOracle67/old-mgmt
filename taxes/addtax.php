@@ -18,7 +18,7 @@
                 <?php echo $datacheck.$addany." ".$tax.$endconfirm;?>
             </label>
             <div class="invalid-feedback">
-<?php echo $agreement;?>            </div>
+                <?php echo $agreement;?> </div>
         </div>
     </div>
     <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;display:Block">

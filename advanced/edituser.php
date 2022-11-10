@@ -1,11 +1,11 @@
 <?php
-if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM users")) === 0){
-  echo ("<div class='col-12 bg-light'>");
-echo('<p>'.$msgdeluser1.'</p>');
-echo('<p>'.$msgdeluser2.'</p>');
-echo('<p>'.$msgdeluser3.'</p></div>');
+if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM users' ) ) === 0 ) {
+    echo ( "<div class='col-12 bg-light'>" );
+    echo( '<p>'.$msgdeluser1.'</p>' );
+    echo( '<p>'.$msgdeluser2.'</p>' );
+    echo( '<p>'.$msgdeluser3.'</p></div>' );
 } else {
-    echo ('
+    echo ( '
     <form class="bg-light" action="useractions.php" method="POST">
     <div class="p-4 col-10" style="display:inline-flex;">
             <span class="navbar-toggler-icon"></span>
@@ -33,6 +33,7 @@ echo('<p>'.$msgdeluser3.'</p></div>');
   <button style="width:20%" class="btn btn-primary" type="submit">'.$savebutton.'</button>
   </div>
   </div>
-    </form>');
-    };
-    ?>
+    </form>' );
+}
+;
+?>

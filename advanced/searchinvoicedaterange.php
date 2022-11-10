@@ -1,9 +1,9 @@
 <?php
-if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM invoices")) === 0){
-echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-echo('<p>'.$msginvoice1.'</p>');
+if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM invoices' ) ) === 0 ) {
+    echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em;'>" );
+    echo( '<p>'.$msginvoice1.'</p>' );
 } else {
-    echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    echo ( '<form action="searchresult.php" enctype="multipart/form-data" method="POST">
     <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
     <div class="col-2">
     <label for="mindaterange" class="form-label">'.$mindaterange.'</label>
@@ -28,5 +28,6 @@ echo('<p>'.$msginvoice1.'</p>');
     <button style="width:20%" class="btn btn-primary" type="submit">'.$search.'</button>
   </div>
   </div>
-</form>');}
+</form>' );
+}
 ?>

@@ -1,9 +1,9 @@
 <?php
-if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM ivas")) === 0){
-  echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-  echo('<p>'.$notaxestodel.'</p></div>');
+if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM ivas' ) ) === 0 ) {
+    echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>" );
+    echo( '<p>'.$notaxestodel.'</p></div>' );
 } else {
-    echo ('
+    echo ( '
     <form action="taxactions.php" method="POST">
     <div class="p-2 col-10" style="display:inline-flex;">
             <span class="navbar-toggler-icon"></span>
@@ -34,6 +34,7 @@ if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM ivas")) === 0){
   <button style="width:20%" class="btn btn-primary" type="submit">'.$savebutton.'</button>
   </div>
   </div>
-    </form>');
-    };
-    ?>
+    </form>' );
+}
+;
+?>

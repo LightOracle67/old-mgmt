@@ -1,61 +1,166 @@
+/* DATABASE STORE FOR ADEM+ UI WEB MGMT*/
 DROP DATABASE IF EXISTS store;
-drop user if exists 'store'@'localhost';
-drop user if exists 'store'@'%';
-CREATE USER `store`@`localhost` IDENTIFIED VIA mysql_native_password USING '*D44415B0880D91F2E9836ADD091D50E3E4B7D8A2';GRANT SELECT, INSERT, UPDATE, DELETE, FILE ON *.* TO 'store'@'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0; CREATE DATABASE IF NOT EXISTS `store`;USE store; GRANT ALL PRIVILEGES ON `store`.* TO 'store'@'%';
-DROP TABLE IF EXISTS `users`; CREATE TABLE `users` ( `userid` int(11) NOT NULL AUTO_INCREMENT primary key, `username` varchar(20) NOT NULL, `realname` varchar(200) NOT NULL, `password` text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-INSERT INTO users VALUES ('','administrator','System Administrator for Web Management','136673bea9d4d1134c0258388a5eb56b2afbf56b149aae4fc77805e2f7adf48a072ebeb735a477ec5968f7504b25a560a6f5f270e8d97f6665f49ba28170ab76');
-alter table users drop constraint if exists UQ_username;
-alter table users add constraint UQ_username UNIQUE (username);
-DROP TABLE IF EXISTS `products`; CREATE TABLE `products` ( `prodid` int(11) NOT NULL auto_increment PRIMARY KEY, `realid` text NOT NULL, `prodname` varchar(30) NOT NULL, `fullname` varchar(70) NOT NULL, `proddesc` varchar(100) NOT NULL, `dateadded` date NOT NULL, `price` float(10,2) NOT NULL, `class` INT, `type` INT, `image` varchar(100) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-alter table products add index cid (class);
-alter table products add index tid (type);
-drop table if exists classlist;
-CREATE TABLE classlist(classid INT NOT NULL AUTO_INCREMENT primary key, classname VARCHAR(100) NOT NULL unique,ivaperclass int(11) not null);
-alter table products drop constraint if exists UQ_classes;
-alter table classlist add constraint UQ_classes UNIQUE (classname);
-alter table products drop index if exists cname;
-alter table classlist add index cname (classname);
-alter table products drop constraint if exists FK_classes;
-alter table products add constraint FK_classes FOREIGN key (class) references classlist (classid) on update cascade on delete CASCADE;
-drop table if exists typelist;
-CREATE TABLE typelist(typeid INT NOT NULL AUTO_INCREMENT primary key, typename VARCHAR(100) NOT NULL unique);
-alter table products drop constraint if exists UQ_types;
-alter table typelist add constraint UQ_type UNIQUE (typename);
-alter table typelist add index tname (typename);
-alter table products add constraint FK_type FOREIGN key (type) references typelist (typeid) on update cascade on delete CASCADE;
-DROP TABLE IF EXISTS ivas;CREATE TABLE ivas(ivaid int not null AUTO_INCREMENT primary key,ivatype varchar(30) not null UNIQUE,ivaperc int not null);
-INSERT INTO ivas values ('','General',21),('','Reduced',10),('','SuperReduced',4),('','Exempt',0);
-alter table classlist add constraint FK_ivatype FOREIGN KEY (ivaperclass) references ivas (ivaid) ON UPDATE CASCADE ON DELETE NO ACTION;
-DROP TABLE IF EXISTS discountvouchers;
-CREATE TABLE IF NOT EXISTS discountvouchers(vouchid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,voucher TEXT NOT NULL UNIQUE,vouchpercent FLOAT NOT NULL,creationdate DATE NOT NULL,finaldate DATE NOT NULL);
-ALTER TABLE `products` ADD UNIQUE(`prodname`);
-DELETE FROM discountvouchers;
-alter table discountvouchers AUTO_INCREMENT=0;
-
-DROP TABLE IF EXISTS actualinvoice;
-CREATE TABLE actualinvoice(userid int(11) not null, `invoiceid` int(11) NOT NULL, `prodid` int(11) NOT NULL, `price` float(10,2) NOT NULL, `quantity` int(11) NOT NULL, `checkout` float(10,2) not null,checkoutplusiva float(10,2)  NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
-ALTER TABLE `actualinvoice` ADD PRIMARY KEY(`invoiceid`,prodid);
-alter table actualinvoice drop constraint if exists FK_prodid;
-alter table actualinvoice add constraint FK_prodid FOREIGN key (prodid) references products (prodid) on update cascade on delete NO ACTION;
-ALTER TABLE actualinvoice drop constraint if exists FK_useridactualinvoice;
-ALTER TABLE actualinvoice add constraint FK_useridactualinvoice FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE CASCADE ON DELETE NO ACTION;
-
-DROP TABLE IF EXISTS detailinvoice;
-CREATE TABLE detailinvoice(userid int(11) not null, `invoiceid` int(11) NOT NULL, `prodid` int(11) NOT NULL, `price` float(10,2) NOT NULL, `quantity` int(11) NOT NULL, `checkout` float(10,2) not null,checkoutplusiva float(10,2)  NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
-ALTER TABLE detailinvoice ADD PRIMARY KEY(`invoiceid`,prodid,userid);
-ALTER TABLE detailinvoice ADD INDEX ind_invoiceid (invoiceid);
-alter table detailinvoice drop constraint if exists FK_detailinvoice_prodid;
-alter table detailinvoice add constraint FK_detailinvoice_prodid FOREIGN key (prodid) references products (prodid) on update cascade on delete NO ACTION;
-ALTER TABLE detailinvoice drop constraint if exists FK_useridactualinvoice;
-ALTER TABLE detailinvoice add constraint FK_useriddetailinvoice FOREIGN KEY (userid) REFERENCES users(userid) ON UPDATE CASCADE ON DELETE NO ACTION;
-
-DROP TABLE IF EXISTS invoices; CREATE TABLE invoices(invoiceid int(11) NOT NULL, discountid int default null, invoicedate datetime not null default CURRENT_TIMESTAMP(),totalprice float(10,2) not null) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
-ALTER TABLE `invoices` ADD PRIMARY KEY(`invoiceid`, invoicedate);
-ALTER TABLE invoices drop constraint if exists FK_discountidinvoices;
-ALTER TABLE invoices add constraint FK_discountidinvoices FOREIGN KEY (discountid) REFERENCES discountvouchers(vouchid) ON UPDATE CASCADE ON DELETE NO ACTION;
-ALTER TABLE invoices drop constraint if exists FK_invoiceid;
-ALTER TABLE invoices add constraint FK_invoiceid FOREIGN KEY (invoiceid) REFERENCES detailinvoice(invoiceid) ON UPDATE CASCADE ON DELETE CASCADE;
-
+DROP user IF EXISTS 'store' @'localhost';
+DROP user IF EXISTS 'store' @'%';
+CREATE USER `store` @`localhost` IDENTIFIED VIA mysql_native_password USING '*D44415B0880D91F2E9836ADD091D50E3E4B7D8A2';
+GRANT SELECT,
+    INSERT,
+    UPDATE,
+    DELETE,
+    FILE ON *.* TO 'store' @'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
+CREATE DATABASE IF NOT EXISTS `store`;
+USE store;
+GRANT ALL PRIVILEGES ON `store`.* TO 'store' @'%';
+/*LOCALES TABLE*/
 DROP TABLE IF EXISTS locales;
-CREATE TABLE `store`.`locales` (localeid INT NOT NULL AUTO_INCREMENT,localetextid varchar(10) not null,`localecountry` VARCHAR(100) NOT NULL,storename varchar(100) not null,currency varchar(1) not null, selected boolean unique, PRIMARY KEY (localeid)) ENGINE = InnoDB;
-INSERT INTO `locales` (`localeid`, `localetextid`, `localecountry`, `storename`, `currency`, `selected`) VALUES ('', 'en-GB', 'Britain', 'CHANGEME', '£', '1');
+CREATE TABLE `store`.`locales` (
+    localeid INT NOT NULL AUTO_INCREMENT,
+    localetextid varchar(10) not null,
+    `localecountry` VARCHAR(100) NOT NULL,
+    storename varchar(100) not null,
+    currency varchar(1) not null,
+    selected boolean unique,
+    PRIMARY KEY (localeid)
+) ENGINE = InnoDB;
+INSERT INTO `locales` (
+        `localeid`,
+        `localetextid`,
+        `localecountry`,
+        `storename`,
+        `currency`,
+        `selected`
+    )
+VALUES ('', 'en-GB', 'Britain', 'CHANGEME', '£', '1');
+/*USERS TABLE*/
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+    `userid` int(11) NOT NULL,
+    `username` varchar(20) NOT NULL,
+    `realname` varchar(50) NOT NULL,
+    `password` text NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+INSERT INTO users
+VALUES (
+        '',
+        'administrator',
+        'System Administrator for Web Management',
+        '136673bea9d4d1134c0258388a5eb56b2afbf56b149aae4fc77805e2f7adf48a072ebeb735a477ec5968f7504b25a560a6f5f270e8d97f6665f49ba28170ab76'
+    );
+alter TABLE users DROP constraint IF EXISTS PK_users;
+alter TABLE users
+add constraint PK_users PRIMARY KEY (userid, username);
+/*PRODUCTS TABLE*/
+DROP TABLE IF EXISTS products;
+CREATE TABLE IF NOT EXISTS products(
+    prodid int not null auto_increment PRIMARY KEY,
+    realid int not null unique,
+    prodname varchar(30) not null,
+    fullname varchar(70) not null,
+    proddesc varchar(200) not null,
+    dateadded date not null,
+    price float (10, 2) not null,
+    class int not null,
+    type int not null,
+    image varchar(50)
+);
+/*CLASSLIST TABLE*/
+DROP TABLE IF EXISTS classlist;
+CREATE TABLE IF NOT EXISTS classlist(
+    classid int not null auto_increment PRIMARY KEY,
+    classname varchar(30) UNIQUE,
+    ivaperclass int not null
+);
+/*TYPELIST TABLE*/
+DROP TABLE IF EXISTS typelist;
+CREATE TABLE IF NOT EXISTS typelist(
+    typeid int not NULL auto_increment PRIMARY KEY,
+    typename varchar(50) not null UNIQUE
+);
+/*IVAS TABLE*/
+DROP TABLE IF EXISTS ivas;
+CREATE TABLE IF NOT EXISTS ivas(
+    ivaid int not null auto_increment PRIMARY KEY,
+    ivatype varchar(30) not null UNIQUE,
+    ivaperc int not null
+);
+INSERT INTO ivas
+VALUES ('', 'General', 21),
+    ('', 'Reduced', 10),
+    ('', 'Reduced+', 4),
+    ('', 'Exempt', 0);
+/*INVOICES TABLE*/
+DROP TABLE IF EXISTS invoices;
+CREATE TABLE IF NOT EXISTS invoices(
+    invoiceid int not null auto_increment PRIMARY KEY,
+    invoicedate datetime not null,
+    userid int not null
+);
+/*DETAILINVOICE TABLE*/
+DROP TABLE IF EXISTS detailinvoice;
+CREATE TABLE IF NOT EXISTS detailinvoice(
+    invoiceid int not null,
+    prodid int not null,
+    price float(10, 2),
+    quantity int not null,
+    checkout float(10, 2) not null,
+    checkoutplusiva float(10, 2) not null
+);
+alter table detailinvoice drop constraint if EXISTS PK_detailinvoice;
+alter table detailinvoice
+add constraint PK_detailinvoice PRIMARY KEY (invoiceid, prodid);
+
+/*ACTUALINVOICE TABLE*/
+DROP TABLE IF EXISTS actualinvoice;
+CREATE TABLE IF NOT EXISTS actualinvoice(
+    invoiceid int not null,
+    prodid int not null,
+    price float(10, 2),
+    quantity int not null,
+    checkout float(10, 2) not null,
+    checkoutplusiva float(10, 2) not null
+);
+alter table actualinvoice drop constraint if EXISTS PK_actualinvoice;
+alter table actualinvoice
+add constraint PK_actualinvoice PRIMARY KEY (invoiceid, prodid);
+/*DISCOUNTVOUCHERS TABLE*/
+DROP TABLE IF EXISTS discountvouchers;
+CREATE TABLE IF NOT EXISTS discountvouchers(
+    vouchid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    voucher TEXT NOT NULL UNIQUE,
+    vouchpercent FLOAT NOT NULL,
+    creationdate DATE NOT NULL,
+    finaldate DATE NOT NULL
+);
+ALTER TABLE `products`
+ADD UNIQUE(`prodname`);
+DELETE FROM discountvouchers;
+alter table discountvouchers AUTO_INCREMENT = 0;
+
+/*INVOICEDISCOUNT TABLE*/
+DROP TABLE IF EXISTS invoicediscount;
+CREATE TABLE IF NOT EXISTS invoicediscount(
+    invoiceid int not null PRIMARY KEY,
+    vouchid int not null UNIQUE
+);
+/*FOREIGN KEYS*/
+ALTER TABLE detailinvoice DROP constraint IF EXISTS FK_DINV_INVID_INVS_INVID;
+ALTER TABLE detailinvoice DROP constraint IF EXISTS FK_DINV_PRID_PRDCTS_PRID;
+ALTER TABLE actualinvoice DROP constraint IF EXISTS FK_AINV_PRID_PRDCTS_PRID;
+ALTER TABLE detailinvoice
+add constraint FK_DINV_INVID_INVS_INVID FOREIGN KEY (invoiceid) REFERENCES invoices(invoiceid);
+ALTER TABLE detailinvoice
+ADD constraint FK_DINV_PRID_PRDCTS_PRID FOREIGN KEY (prodid) REFERENCES PRODUCTS(prodid);
+ALTER TABLE actualinvoice
+ADD constraint FK_AINV_PRID_PRDCTS_PRID FOREIGN KEY (prodid) REFERENCES PRODUCTS(prodid);
+ALTER TABLE PRODUCTS DROP constraint IF EXISTS FK_PRDCTS_CLSS_CLSSS_CLSSID;
+ALTER TABLE PRODUCTS DROP constraint IF EXISTS FK_PRDCTS_TYPE_TYPES_TYPEID;
+ALTER TABLE classlist DROP constraint IF EXISTS FK_IVAID_IVAS_IVAID;
+ALTER TABLE PRODUCTS
+ADD constraint FK_PRDCTS_CLSSID_CLSSS_CLSSID FOREIGN KEY (class) REFERENCES classlist(classid);
+ALTER TABLE PRODUCTS
+ADD constraint FK_PRDCTS_TYPEID_TYPES_TYPEID FOREIGN KEY (type) REFERENCES typelist(typeid);
+ALTER TABLE classlist
+ADD constraint FK_IVAID_IVAS_IVAID FOREIGN KEY (ivaperclass) REFERENCES ivas(ivaid);
+ALTER TABLE invoices DROP constraint IF EXISTS FK_USRID_USRS_USRID;
+ALTER TABLE invoices
+ADD constraint FK_USRID_USRS_USRID FOREIGN KEY (userid) REFERENCES users(userid);

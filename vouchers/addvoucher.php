@@ -20,14 +20,14 @@
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="add" id="invalidCheck" required />
             <label class="form-check-label" for="invalidCheck">
-                <?php echo $datacheck.$addany." ".$voucherstring.$endconfirm ?>
+                <?php echo $datacheck.$addany." ".$vouchers.$endconfirm ?>
             </label>
             <div class="invalid-feedback">
-<?php echo $agreement;?>            </div>
+                <?php echo $agreement;?> </div>
         </div>
     </div>
     <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;display:Block">
-        <button style="width:20%;" class="btn btn-primary" type="submit"><?php echo $addany." ".$voucherstring?></button>
+        <button style="width:20%;" class="btn btn-primary" type="submit"><?php echo $addany." ".$vouchers?></button>
     </div>
     </div>
 </form>

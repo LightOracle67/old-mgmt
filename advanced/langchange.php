@@ -1,88 +1,107 @@
-<?php include "../private/databaseopts.php"; 
-        include "../private/scheck.php";
-include "../private/admincheck.php";
-include "../locales/locales.php";
+<?php include '../private/databaseopts.php';
+
+
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <link rel="icon" href="../src/images/favicon/favicon.svg"/>
-    <title><?php echo $webmgmt?></title>
+<meta charset = 'UTF-8'>
+<meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+<meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+<link rel = 'icon' href = '../src/images/favicon/favicon.svg'/>
+<title><?php echo $webmgmt?></title>
 </head>
-<body><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-<?php include("../manager/navtopinternal.php"); ?>
+<body>
+<?php include( '../manager/navtopinternal.php' );
+?>
 
+<div class = 'p-0 mb-4 bg-light rounded-3'>
+<div class = 'container-fluid py-4 margin-0 padding-0'>
+<h3><a href = '../manager/webmanager.php'><i class = 'bi bi-arrow-left-circle'></i></a><?php echo $language;
+?></h3>
+<div class = 'table-responsive bg-light' style = 'height:369px;overflow-y:scroll;'>
+<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th><?php echo $intlangid?></th>
+<th><?php echo $textlangid?></th>
+<th><?php echo $country?></th>
+<th><?php echo $tablestorename;
+?></th>
+<th><?php echo $currency;
+?></th>
+<th><?php echo $selectedlang;
+?></th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>
+<?php
+if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * from locales order by selected desc;' ) ) === 0 ) {
+    echo( '<tr><td colspan=10>'.$msglocales1.'</td></tr>' );
+} else {
+    $sql = 'SELECT * from locales ORDER BY selected desc;';
+    $result = ( $con->query( $sql ) );
+    $row = [];
+    if ( $result->num_rows > 0 ) {
+        $row = $result->fetch_all( MYSQLI_ASSOC );
+    }
+    ;
+}
+;
+if ( !empty( $row ) ) {
+    foreach ( $row as $rows )
+ {
 
-<div class="p-0 mb-4 bg-light rounded-3">
-    <div class="container-fluid py-4 margin-0 padding-0">
-    <h3><a href="../manager/webmanager.php"><i class="bi bi-arrow-left-circle"></i></a><?php echo $language;?></h3>
-    <div class="table-responsive bg-light" style="height:369px;overflow-y:scroll;">
-                    <table class="table table-striped table-hover table-borderless table-primary align-middle">
-                        <thead>
-                            <tr style="position: sticky; top:0;">
-                                <th><?php echo $intlangid?></th>
-                                <th><?php echo $textlangid?></th>
-                                <th><?php echo $country?></th>
-                                <th><?php echo $tablestorename;?></th>
-                                <th><?php echo $currency;?></th>
-                                <th><?php echo $selectedlang;?></th>
-                            </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                                <?php
-                                if(mysqli_num_rows(mysqli_query($con,"SELECT * from locales order by selected desc;")) === 0){
-                                echo("<tr><td colspan=10>".$msglocales1."</td></tr>");
-                                } else {
-                                    $sql = "SELECT * from locales ORDER BY selected desc;";
-                                    $result = ($con->query($sql));
-                                    $row = [];
-                                    if ($result->num_rows > 0){$row = $result->fetch_all(MYSQLI_ASSOC);};
-                                };
-                                if(!empty($row)){
-               foreach($row as $rows)
-              {
-                
-              
-            ?>
-            <tr>
-                <td><?php echo $rows['localeid'];?></td>
-                <td><?php echo $rows['localetextid'];?></td>                
-                <td><?php echo $rows['localecountry'];?></td>
-                <td><?php echo $rows['storename'];?></td>
-                <td><?php echo $rows['currency'];?></td>
-                <td><?php
-                if($rows['selected']!=NULL){
-                    echo "Y";
-                }else{
-                    echo "N";
-                } ?></td>
-            </tr>
-            <?php };} ?>  
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                            </tfoot>
-                    </table>
-                </div>
-                <caption class="sticky-bottom"><?php echo("(".mysqli_fetch_array(mysqli_query($con,"SELECT count(*) from locales"))[0].$locales2show);?></caption>
-   
+        ?>
+        <tr>
+        <td><?php echo $rows[ 'localeid' ];
+        ?></td>
+        <td><?php echo $rows[ 'localetextid' ];
+        ?></td>
+        <td><?php echo $rows[ 'localecountry' ];
+        ?></td>
+        <td><?php echo $rows[ 'storename' ];
+        ?></td>
+        <td><?php echo $rows[ 'currency' ];
+        ?></td>
+        <td><?php
+        if ( $rows[ 'selected' ] != NULL ) {
+            echo 'Y';
+        } else {
+            echo 'N';
+        }
+        ?></td>
+        </tr>
+        <?php }
+        ;
+    }
+    ?>
+    </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+    </table>
     </div>
-  </div>
-  <?php  if($administrator === true){echo('
+    <caption class = 'sticky-bottom'><?php echo( '('.mysqli_fetch_array( mysqli_query( $con, 'SELECT count(*) from locales' ) )[ 0 ].$locales2show );
+    ?></caption>
+
+    </div>
+    </div>
+    <?php  if ( $administrator === true ) {
+        echo( '
   <nav class="nav nav-pills" id="nav-tab" role="tablist">
   <a class="nav-link" id="nav-langchange-tab" data-bs-toggle="tab" href="#nav-langchange" role="tab" aria-controls="nav-langchange" aria-selected="false">'.$language.'</a>
-  </nav>');}else{
-  echo("<p class='m-2 p-2'>".$advuseroptsonlyforadms."</p>");
-};?>
-<div class="tab-content" id="nav-tabContent">
-  <div class="bg-white tab-pane fade show" id="nav-langchange" role="tabpanel" aria-labelledby="nav-langchange -tab">
-  <?php include_once("integratedlangselect.php")?>
-</div>
-</div>
-</body>
-</html>
+  </nav>' );
+    } else {
+        echo( "<p class='m-2 p-2'>".$advuseroptsonlyforadms.'</p>' );
+    }
+    ;
+    ?>
+    <div class = 'tab-content' id = 'nav-tabContent'>
+    <div class = 'bg-white tab-pane fade show' id = 'nav-langchange' role = 'tabpanel' aria-labelledby = 'nav-langchange -tab'>
+    <?php include_once( 'integratedlangselect.php' )?>
+    </div>
+    </div>
+    </body>
+    </html>
