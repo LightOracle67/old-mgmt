@@ -520,12 +520,14 @@ function productsbyclass()
 }
 
 /*---------------------------- WEBMANAGER - INVOICE STEP 1 ---------------------------- */
-function actualinvoiceid(/*HAY QUE CORREGIRLO*/)
+function actualinvoiceid()
 {
     global $localestrings;
     $con = dbaccess();
     $actualinvoiceid = mysqli_fetch_array(mysqli_query($con, "SELECT max(invoiceid) from actualinvoice;"))[0];
     $invoicesmax = mysqli_fetch_array(mysqli_query($con, "SELECT max(invoiceid) from invoices"))[0];
+    /*HAY QUE REHACERLO*/
+    /*¿INNER JOIN INVOICES -- ACTUALINVOICE --> (INVOICEID)?*/
     if (!isset($_POST['actualinvoiceid']) && $actualinvoiceid === NULL) {
         if ($actualinvoiceid === 0 && $invoicesmax === 0) {
             $actualinvoiceid = 1;
