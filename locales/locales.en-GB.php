@@ -90,7 +90,6 @@ if ( $localecode === 'en-GB' ) {
         'noclass2' => " Add one or more from the 'Add Product Class' tab.",
         'notype' => 'Could not find any types to ',
         'notype2' => " Add one or more from the 'Add Product Type' tab.",
-        
         'classtaxperc' => 'Class IVA Percentage',
         'noivatypes' => 'There are no available IVA types available.',
         'classident' => 'Numeric Class Identifier',
@@ -170,7 +169,7 @@ if ( $localecode === 'en-GB' ) {
         'tablestorename' => "Store Name",
         'currency' => "Locale Currency",
         'selectedlang' => "Selected Locale (Y/N)",
-        'locales2show' => ' ) locale( s ) to show',
+        'locales2show' => ') locale(s) to show',
         'msglocales1' => "There are no locales or languages to show here. By default, you are using 'en-GB' as your regional code.",
         'changelang' => "Update Manager Language",
         'showinvoice' => 'Show Actual Invoice',
@@ -182,7 +181,8 @@ if ( $localecode === 'en-GB' ) {
         'dbschemaerror' => 'Server is up and database is working correctly, but for some reason, we can not read from it. Please re create it again using the "createdb.sql" file in the "advanced" folder.',
         'priceempty' => '--.--',
         'notselected' => '( Not Selected ) - 0 (',
-        'requiredinput' => 'One or more inputs were sent blank, but they are required.'
+        'requiredinput' => 'One or more inputs were sent blank, but they are required.',
+        'cantdeluser' => 'That user can not be deleted.'
         ];
     };
     $localestrings['webmgmt'] = $localestrings['storename'].' - '.$localestrings['adewmplus'];
@@ -193,7 +193,8 @@ if ( $localecode === 'en-GB' ) {
         $localestrings['tableprodprice'] = $localestrings['product'].' '.$localestrings['prodprice']; 
         $localestrings['classname'] = $localestrings['class'].' '.$localestrings['name'];       
         $localestrings['typename'] = $localestrings['type'].' '.$localestrings['name'];     
-        $localestrings['taxname'] = $localestrings['tax'].' '.$localestrings['name'];     
+        $localestrings['taxname'] = $localestrings['tax'].' '.$localestrings['name'];
+        $localestrings['edituser'] = $localestrings['editany'].' '.$localestrings['user'];   
     }else{
         $localestrings['sessionname'] = '';
         $localestrings['sessionrealname']= '';

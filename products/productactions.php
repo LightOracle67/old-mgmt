@@ -6,6 +6,7 @@ if (!isset($_POST['add']) && !isset($_POST['delete']) && !isset($_POST['edit']))
     header('Location:products.php');
     exit();
 } elseif (isset($_POST['add'])) {
+    if(isset($_FILES['prodimage'])){
     foreach ($_FILES['prodimage']['error'] as $key => $error) {
         if ($error == UPLOAD_ERR_OK) {
             $tmpName = $_FILES['prodimage']['tmp_name'][$key];
@@ -13,6 +14,9 @@ if (!isset($_POST['add']) && !isset($_POST['delete']) && !isset($_POST['edit']))
             move_uploaded_file($tmpName, "./prodimages/$prodimage");
         }
     }
+}else{
+    $prodimage = "default.png";
+}
     addprod($_POST['extprodid'], $_POST['prodname'], $_POST['fullname'], $_POST['description'], $_POST['dateadded'], $_POST['price'], $_POST['prodclass'], $_POST['prodtype'], $prodimage);
     header('Location:products.php');
     exit();

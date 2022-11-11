@@ -400,7 +400,6 @@ function navtop($localestrings)
                         <a id="menus" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                             aria-expanded="false">' . $localestrings['advsetts'] . '</a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="../advanced/advancedsettings.php">' . $localestrings['advsetts'] . '</a></li>
                             <li><a class="dropdown-item" href="../advanced/users.php">' . $localestrings['usernavtop'] . '</a></li>
                             <li><a class="dropdown-item" href="../advanced/invoicesearch.php">' . $localestrings['invoicestop'] . '</a></li>
                             <li><a class="dropdown-item" href="../advanced/langchange.php">' . $localestrings['language'] . '</a></li>
@@ -521,7 +520,7 @@ function productsbyclass()
 }
 
 /*---------------------------- WEBMANAGER - INVOICE STEP 1 ---------------------------- */
-function actualinvoiceid()
+function actualinvoiceid(/*HAY QUE CORREGIRLO*/)
 {
     global $localestrings;
     $con = dbaccess();
@@ -871,7 +870,9 @@ function firstinvoicecheck($invoiceid, $timestamp)
     </div>
     </form>');
 };
-/* ----------------------------- INVOICE - INVOICE STEP 3 ----------------------------- */
+/*----------------------- 
+INVOICE - INVOICE STEP 3
+-----------------------*/
 function
 printinginvoice(
     $timestamp,
@@ -1276,16 +1277,15 @@ function addprodpage()
 {
     $con = dbaccess();
     global $localestrings;
-    echo ('<div>
-    <form action="productactions.php" enctype="multipart/form-data" method="POST">
+    echo ('<form action="productactions.php" enctype="multipart/form-data" method="POST">
     <div style="display:inline-flex; padding-left:2em; width:100%">
         </button>
-        <div class="col-2">
+        <div class="col-3">
             <label for="extprodid" class="form-label">' . $localestrings['extid'] . '</label>
             <input type="number" class="form-control" name="extprodid" id="extprodid" aria-describedby="helpId"
                 placeholder="' . $localestrings['extid'] . '" required>
         </div>
-        <div class="col-2">
+        <div class="col-3">
             <label for="prodname" class="form-label">' . $localestrings['tableprodname'] . '</label>
             <input type="text" class="form-control" name="prodname" id="prodname" aria-describedby="helpId"
                 placeholder="' . $localestrings['tableprodname'] . '" required>
@@ -1302,17 +1302,17 @@ function addprodpage()
         </div>
     </div>
     <div style="display:inline-flex;padding-left:2em">
-        <div class="col-1.5">
+        <div class="col-3">
             <label for="dateadded" class="form-label">' . $localestrings['tableproddateadded'] . '</label>
             <input type="date" class="form-control" name="dateadded" id="dateadded" aria-describedby="helpId"
                 placeholder="' . $localestrings['tableproddateadded'] . '">
         </div>
-        <div class="col-2">
+        <div class="col-3">
             <label for="price" class="form-label">' . $localestrings['prodprice'] . '</label>
             <input type="number" class="form-control" name="price" id="price" aria-describedby="helpId" step="any"
                 placeholder="' . $localestrings['prodprice'] . '" required>
         </div>
-        <div class="col-2">
+        <div class="col-3">
             <label for="prodclass" class="form-label">' . $localestrings['tableprodclass'] . '</label>
             <select class="form-select form-select-lg" name="prodclass" id="UsernameInput" required>');
     if (mysqli_num_rows(mysqli_query($con, "SELECT classid FROM classlist;")) <= 0) {
@@ -1332,7 +1332,7 @@ function addprodpage()
     }
     echo ('</select>
         </div>
-        <div class="col-2">
+        <div class="col-3">
             <label for="prodtype" class="form-label">' . $localestrings['tableprodtype'] . '</label>
             <select class="form-select form-select-lg" name="prodtype" id="UsernameInput" required>');
     if (mysqli_num_rows(mysqli_query($con, "SELECT typeid FROM typelist;")) <= 0) {
@@ -1352,14 +1352,15 @@ function addprodpage()
     };
     echo (' </select>
         </div>
-        <div class="col-3">
+        </div>
+        <div style="display:inline-flex;padding-left:2em">
+        <div class="col-13">
             <label for="prodimage[]" class="form-label">' . $localestrings['tableprodimage'] . '</label>
             <input type="file" class="form-control" name="prodimage[]" id="prodimage[]" aria-describedby="helpId"
                 placeholder="' . $localestrings['tableprodimage'] . '" value="default.png" default="default.png">
-        </div>
+                </div>
     </div>
-
-    <div class="col-10" style="display:inline-flex; padding-left:2em;">
+    <div style="display:block;padding-left:2em;">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="add" id="invalidCheck" required>
             <label class="form-check-label" for="invalidCheck">
@@ -1369,12 +1370,14 @@ function addprodpage()
                 ' . $localestrings['agreement'] . '
             </div>
         </div>
+    
     </div>
     <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
         <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['product'] . '</button>
     </div>
+    </div>
 </form>
-</div>');
+');
 }
 function delprodpage()
 {
@@ -1388,11 +1391,11 @@ function delprodpage()
         <form action="productactions.php" method="POST">
         <div class="col-10"  style="display:inline-flex; padding-left:2em;></button>
                 <span class="navbar-toggler-icon"></span>
-               <div class="col-2">
+               <div class="col-3">
           <label for="delprodbyid" class="form-label">' . $localestrings['intid'] . '</label>
           <input type="number" class="form-control" name="delprodbyid" id="delprodbyid" aria-describedby="helpId" placeholder="' . $localestrings['intid'] . '" required>
         </div>
-        <div class="col-2">
+        <div class="col-3">
           <label for="delprodbyname" class="form-label">' . $localestrings['tableprodname'] . '</label>
           <input type="text" class="form-control" name="delprodbyname" id="delprodbyname" aria-describedby="helpId" placeholder="' . $localestrings['tableprodname'] . '" required>
         </div>
@@ -1428,15 +1431,15 @@ function editprodpage()
         <form action="productactions.php" method="POST" enctype="multipart/form-data">
         <div class="col-10" style="display:inline-flex; padding-left:2em;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
+            </button>    <div class="col-3">
           <label for="selprodbyid" class="form-label">' . $localestrings['intid'] . $localestrings['to'] . $localestrings['editany'] . '</label>
           <input type="number" class="form-control" name="selprodbyid" id="selprodbyid" aria-describedby="helpId" placeholder="' . $localestrings['intid'] . $localestrings['to'] . $localestrings['editany'] . '" required>
         </div>
-        <div class="col-2">
+        <div class="col-3">
           <label for="newrealid" class="form-label">' . $localestrings['extid'] . '</label>
           <input type="number" class="form-control" name="newrealid" id="newrealid" aria-describedby="helpId" placeholder="' . $localestrings['extid'] . '">
         </div>
-        <div class="col-2">
+        <div class="col-3">
           <label for="newprodname" class="form-label">' . $localestrings['tableprodname'] . '</label>
           <input type="text" class="form-control" name="newprodname" id="newprodname" aria-describedby="helpId" placeholder="' . $localestrings['tableprodname'] . '">
         </div>
@@ -1458,7 +1461,7 @@ function editprodpage()
           <label for="newprice" class="form-label">' . $localestrings['tableprodprice'] . '</label>
           <input type="number" class="form-control" name="newprice" id="newprice" aria-describedby="helpId" step="any" placeholder="' . $localestrings['tableprodprice'] . '">
         </div>
-        <div class="col-2">
+        <div class="col-3">
         <label for="prodclass" class="form-label">' . $localestrings['tableprodclass'] . '</label>
         <select class="form-select form-select-lg" name="prodclass" id="prodclass" required>');
         if (mysqli_num_rows(mysqli_query($con, 'SELECT classid FROM classlist;')) <= 0) {
@@ -1482,7 +1485,7 @@ function editprodpage()
         };
         echo ("</select>
         </div>
-        <div class='col-2'>
+        <div class='col-3'>
         <label for='prodtype' class='form-label'>" . $localestrings['tableprodtype'] . "</label>
         <select class='form-select form-select-lg' name='prodtype' id='UsernameInput' required>");
         if (mysqli_num_rows(mysqli_query($con, 'SELECT typeid FROM typelist;')) <= 0) {
@@ -1543,12 +1546,17 @@ function addprod($extprodid, $prodname, $fullname, $description, $dateadded, $pr
         header('Location:products.php');
         exit();
     } else {
-        if ($_POST['dateadded'] === '') {
+        if ($dateadded === '') {
             $dateadded = date('Y-m-d');
         } else {
-            $dateadded = $_POST['dateadded'];
+            $dateaddedprod = $dateadded;
         }
-        $action = "INSERT INTO products VALUES (''," . $extprodid . ",'" . $prodname . "','" . $fullname . "','" . $description . "','" . $dateadded . "'," . $price . "," . $class . "," . $type . ",'" . $image . "')";
+        if (!isset($image)) {
+            $prodimage = "default.png";
+        } else {
+            $prodimage = $image;
+        }
+        $action = "INSERT INTO products VALUES (''," . $extprodid . ",'" . $prodname . "','" . $fullname . "','" . $description . "','" . $dateaddedprod . "'," . $price . "," . $class . "," . $type . ",'" . $prodimage . "')";
         mysqli_real_query($con, $action);
     }
     header('Location:products.php');
@@ -1607,8 +1615,7 @@ width: fill-available;'>
                                 <tr style='position: sticky; top:0;'>
                                     <th>" . $localestrings['class'] . ' ' . $localestrings['intid'] . "</th>
                                     <th>" . $localestrings['classname'] . "</th>
-                                    <th>" . $localestrings['iva'] . ' ' . $localestrings['typeper'] . ' ' .
-        $localestrings['class'] . "</th>
+                                    <th>" . $localestrings['iva'] . ' ' . $localestrings['type'] . "</th>
                                 </tr>
                             </thead>
                             <tbody class='table-group-divider'>");
@@ -1740,24 +1747,24 @@ width: fill-available;'>
                 <div class='sticky sticky-bottom' style='bottom:0%;z-index:12500;top:0%;left:0%;display:block;'><button
                         class='btn btn-primary' type='button' data-bs-toggle='collapse'
                         data-bs-target='#collapseExample' aria-expanded='false' aria-controls='collapseExample'>
-                        <p class='m-0 p-0 display-6'>More Actions</p>
+                        <p class='m-0 p-0 display-6'>" . $localestrings['moreactions'] . "</p>
                     </button></div>
                 <div class='collapse' id='collapseExample'>
                     <nav class='nav nav-pills' id='nav-tab' role='tablist'>
-                        <a class='nav-link' id='nav-addclass-tab' data-bs-toggle='tab' href='#nav-addclass' role='tab'
+                        <a class='nav-link ml-1 mt-1' id='nav-addclass-tab' data-bs-toggle='tab' href='#nav-addclass' role='tab'
                             aria-controls='nav-addclass' aria-selected='true'>" . $localestrings['addany'] . ' ' . $localestrings['class'] . "</a>
-                        <a class='nav-link' id='nav-deleteproduct-tab' data-bs-toggle='tab' href='#nav-deleteclass'
+                        <a class='nav-link ml-1 mt-1' id='nav-deleteproduct-tab' data-bs-toggle='tab' href='#nav-deleteclass'
                             role='tab' aria-controls='nav-deleteclass' aria-selected='false'>" .
             $localestrings['delany'] . ' ' . $localestrings['class'] . "</a>
-                        <a class='nav-link' id='nav-editproduct-tab' data-bs-toggle='tab' href='#nav-editclass'
+                        <a class='nav-link ml-1 mt-1' id='nav-editproduct-tab' data-bs-toggle='tab' href='#nav-editclass'
                             role='tab' aria-controls='nav-editclass' aria-selected='false'>" .
             $localestrings['editany'] . ' ' . $localestrings['class'] . "</a>
-                        <a class='nav-link ' id='nav-addtype-tab' data-bs-toggle='tab' href='#nav-addtype' role='tab'
+                        <a class='nav-link ml-1 mt-1' id='nav-addtype-tab' data-bs-toggle='tab' href='#nav-addtype' role='tab'
                             aria-controls='nav-addtype' aria-selected='true'>" . $localestrings['addany'] . ' ' . $localestrings['type'] . "</a>
-                        <a class='nav-link' id='nav-deletetype-tab' data-bs-toggle='tab' href='#nav-deletetype'
+                        <a class='nav-link ml-1 mt-1' id='nav-deletetype-tab' data-bs-toggle='tab' href='#nav-deletetype'
                             role='tab' aria-controls='nav-deletetype' aria-selected='false'>" .
             $localestrings['delany'] . ' ' . $localestrings['type'] . "</a>
-                        <a class='nav-link' id='nav-edittype-tab' data-bs-toggle='tab' href='#nav-edittype' role='tab'
+                        <a class='nav-link ml-1 mt-1' id='nav-edittype-tab' data-bs-toggle='tab' href='#nav-edittype' role='tab'
                             aria-controls='nav-edittype' aria-selected='false'>" . $localestrings['editany'] . ' ' . $localestrings['type'] . "</a>
                     </nav>");
     } else {
@@ -1873,11 +1880,11 @@ function delclasspage()
     } else {
         echo ('<form action="classactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
-            <div class="col-2">
+            <div class="col-3">
             <label for="delclassbyid" class="form-label">' . $localestrings['classident'] . '</label>
           <input type="number" class="form-control" name="delclassbyid" id="delclassbyid" aria-describedby="helpId" placeholder="' . $localestrings['classident'] . '" required>
           </div>
-          <div class="col-2">
+          <div class="col-3">
           <label for="delclassbyname" class="form-label">' . $localestrings['classname'] . '</label>
           <input type="text" class="form-control" name="delclassbyname" id="delclassbyname" aria-describedby="helpId" placeholder="' . $localestrings['classname'] . '" required>
         </div>
@@ -1899,10 +1906,10 @@ function delclasspage()
     </form>');
     };
 };
+
 /*--------------
 EDIT CLASS PAGE
 --------------*/
-
 function editclasspage()
 {
     $con = dbaccess();
@@ -1915,11 +1922,11 @@ function editclasspage()
         <form action="classactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
+            </button>    <div class="col-3">
           <label for="selclassbyid" class="form-label">' . $localestrings['intid'] . '</label>
           <input type="number" class="form-control" name="selclassbyid" id="selclassbyid" aria-describedby="helpId" placeholder="' . $localestrings['intid'] . '" required>
         </div>
-            <div class="col-2">
+            <div class="col-3">
           <label for="newclassname" class="form-label">' . $localestrings['classname'] . '</label>
           <input type="text" class="form-control" name="newclassname" id="newclassname" aria-describedby="helpId" placeholder="' . $localestrings['classname'] . '">
         </div>
@@ -2010,11 +2017,11 @@ function deltypepage()
     } else {
         echo ('<form action="typeactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
-            <div class="col-2">
+            <div class="col-3">
             <label for="deltypebyid" class="form-label">' . $localestrings['intid'] . '</label>
           <input type="number" class="form-control" name="deltypebyid" id="deltypebyid" aria-describedby="helpId" placeholder="' . $localestrings['intid'] . '" required>
           </div>
-          <div class="col-2">
+          <div class="col-3">
           <label for="deltypebyname" class="form-label">' . $localestrings['typename'] . '</label>
           <input type="text" class="form-control" name="deltypebyname" id="deltypebyname" aria-describedby="helpId" placeholder="' . $localestrings['typename'] . '" required>
         </div>
@@ -2033,10 +2040,10 @@ function deltypepage()
     </form>');
     };
 };
+
 /*-------------
 EDIT TYPE PAGE
 -------------*/
-
 function edittypepage()
 {
     $con = dbaccess();
@@ -2049,11 +2056,11 @@ function edittypepage()
         <form action="typeactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
+            </button>    <div class="col-3">
           <label for="seltypebyid" class="form-label">' . $localestrings['intid'] . '</label>
           <input type="number" class="form-control" name="seltypebyid" id="seltypebyid" aria-describedby="helpId" placeholder="' . $localestrings['intid'] . '" required>
         </div>
-            <div class="col-2">
+            <div class="col-3">
           <label for="newtypename" class="form-label">' . $localestrings['typename'] . '</label>
           <input type="text" class="form-control" name="newtypename" id="newtypename" aria-describedby="helpId" placeholder="' . $localestrings['typename'] . '">
         </div>
@@ -2215,11 +2222,12 @@ function edittype($seltypebyid, $newtypename)
 /*---------
 TAXES PAGE
 ---------*/
-function taxes(){
+function taxes()
+{
     $con = dbaccess();
     global $localestrings;
     $administrator = admincheck();
-    echo("<!DOCTYPE html>
+    echo ("<!DOCTYPE html>
 <html>
 
 <head>
@@ -2227,7 +2235,7 @@ function taxes(){
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 
-    <title>".$localestrings['webmgmt']."
+    <title>" . $localestrings['webmgmt'] . "
     </title>
 </head>
 
@@ -2237,47 +2245,43 @@ function taxes(){
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
-            <h3><a href='../manager/webmanager.php'><i class='bi bi-arrow-left-circle'></i></a>".$localestrings['inttaxes']."
+            <h3><a href='../manager/webmanager.php'><i class='bi bi-arrow-left-circle'></i></a>" . $localestrings['inttaxes'] . "
 </h3>
             <table class='table table-striped table-hover table-borderless table-primary align-middle'>
                 <thead>
                     <tr style='position: sticky; top:0;'>
-                        <th>".$localestrings['inttaxid']."
+                        <th>" . $localestrings['inttaxid'] . "
 </th>
-                        <th>".$localestrings['tax'].' '.$localestrings['name']."
+                        <th>" . $localestrings['tax'] . ' ' . $localestrings['name'] . "
 </th>
-                        <th>".$localestrings['taxpercent']."
+                        <th>" . $localestrings['taxpercent'] . "
 </th>
                     </tr>
                 </thead>
                 <tbody class='table-group-divider'>");
-if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM ivas' ) ) === 0 ) {
-    echo ( '<tr>' );
-    echo( '<td colspan=3>'.$localestrings['notaxtytes'].'</td></tr>' );
-} else {
-    $sqltaxes = 'select * from ivas';
-    $resulttaxes = ( $con->query( $sqltaxes ) );
-    $rowtaxes = [];
-    if ( $resulttaxes->num_rows > 0 ) {
-        $rowtaxes = $resulttaxes->fetch_all( MYSQLI_ASSOC );
-    }
-    ;
-}
-;
-if ( !empty( $rowtaxes ) ) {
-    foreach ( $rowtaxes as $rowstaxes )
- {
-    echo('
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
+        echo ('<tr>');
+        echo ('<td colspan=3>' . $localestrings['notaxtytes'] . '</td></tr>');
+    } else {
+        $sqltaxes = 'select * from ivas';
+        $resulttaxes = ($con->query($sqltaxes));
+        $rowtaxes = [];
+        if ($resulttaxes->num_rows > 0) {
+            $rowtaxes = $resulttaxes->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($rowtaxes)) {
+        foreach ($rowtaxes as $rowstaxes) {
+            echo ('
                     <tr>
 
-                        <td>'.$rowstaxes[ 'ivaid' ].'</td>
-                        <td>'.$rowstaxes[ 'ivatype' ].'</td>
-                        <td>'.$rowstaxes[ 'ivaperc' ].' (%)</td>
+                        <td>' . $rowstaxes['ivaid'] . '</td>
+                        <td>' . $rowstaxes['ivatype'] . '</td>
+                        <td>' . $rowstaxes['ivaperc'] . ' (%)</td>
                     </tr>');
-                   }
-        ;
+        };
     }
- echo("                    </tr>
+    echo ("                    </tr>
                 </tbody>
                 <tfoot>
                 </tfoot>
@@ -2294,47 +2298,47 @@ if ( !empty( $rowtaxes ) ) {
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
                     <caption class='sticky-bottom p-2'>
-                        ".( '('.mysqli_fetch_array( mysqli_query( $con, 'SELECT count(*) from ivas' ) )[ 0 ].$localestrings['taxes2show'] )."
+                        " . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from ivas'))[0] . $localestrings['taxes2show']) . "
                     </caption>
                 </div>
             </div>
         </div>
     </div>
     ");
-    if ( $administrator === true ) {
-        echo('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+    if ($administrator === true) {
+        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
         style="width:100%;position:fixed;left:0%;">
         <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
                 class="btn btn-primary" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                <p class="m-0 p-0 display-6">More Actions</p>
+                <p class="m-0 p-0 display-6">' . $localestrings['moreactions'] . '</p>
             </button></div>
         <div class="collapse" id="collapseExample">
     <nav class="nav nav-pills" id="nav-tab" role="tablist">
-        <a class="nav-link" id="nav-addtax-tab" data-bs-toggle="tab" href="#nav-addtax" role="tab"
-            aria-controls="nav-addtax" aria-selected="true">'.$localestrings['addany'].' '.$localestrings['tax'].'</a>
-        <a class="nav-link" id="nav-deletetax-tab" data-bs-toggle="tab" href="#nav-deletetax" role="tab"
-            aria-controls="nav-deletetax" aria-selected="false">'.$localestrings['delany'].' '.$localestrings['tax'].'</a>
-        <a class="nav-link" id="nav-edittax-tab" data-bs-toggle="tab" href="#nav-edittax" role="tab"
-            aria-controls="nav-edittax" aria-selected="false">'.$localestrings['editany'].' '.$localestrings['tax'].'</a>
-    </nav>' );
+        <a class="nav-link ml-1 mt-1" id="nav-addtax-tab" data-bs-toggle="tab" href="#nav-addtax" role="tab"
+            aria-controls="nav-addtax" aria-selected="true">' . $localestrings['addany'] . ' ' . $localestrings['tax'] . '</a>
+        <a class="nav-link ml-1 mt-1" id="nav-deletetax-tab" data-bs-toggle="tab" href="#nav-deletetax" role="tab"
+            aria-controls="nav-deletetax" aria-selected="false">' . $localestrings['delany'] . ' ' . $localestrings['tax'] . '</a>
+        <a class="nav-link ml-1 mt-1" id="nav-edittax-tab" data-bs-toggle="tab" href="#nav-edittax" role="tab"
+            aria-controls="nav-edittax" aria-selected="false">' . $localestrings['editany'] . ' ' . $localestrings['tax'] . '</a>
+    </nav>');
     } else {
-        echo( "<p class='m-2 p-2'>".$localestrings['advtaxoptsonlyforadms'].'</p>' );
+        echo ("<p class='m-2 p-2'>" . $localestrings['advtaxoptsonlyforadms'] . '</p>');
     }
-echo("    <div class='tab-content' id='nav-tabContent'>
+    echo ("    <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-addtax' role='tabpanel' aria-labelledby='nav-addtax-tab'>");
-            addtaxpage();
-        echo("
+    addtaxpage();
+    echo ("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-deletetax' role='tabpanel' aria-labelledby='nav-deletetax-tab'>");
-            deltaxpage();
-       echo("
+    deltaxpage();
+    echo ("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-edittax' role='tabpanel' aria-labelledby='nav-edittax-tab'>");
-            edittaxpage();
-        echo("
+    edittaxpage();
+    echo ("
     </div>
 </body>
 </html>");
@@ -2344,175 +2348,178 @@ echo("    <div class='tab-content' id='nav-tabContent'>
 TAXES ACTIONS PAGES
 ------------------*/
 
-function addtaxpage(){
+function addtaxpage()
+{
     global $localestrings;
-    echo('<form action="taxactions.php" method="POST">
+    echo ('<form action="taxactions.php" method="POST">
     <div class="col-10" style=" display:inline-flex;">
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
-            <label for="taxname" class="form-label">'.$localestrings['taxname'].'</label>
+            <label for="taxname" class="form-label">' . $localestrings['taxname'] . '</label>
             <input type="text" class="form-control" name="taxname" id="taxname" aria-describedby="helpId"
-                placeholder="'.$localestrings['taxname'].'" required />
+                placeholder="' . $localestrings['taxname'] . '" required />
         </div>
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
-            <label for="taxpercent" class="form-label">'.$localestrings['taxpercent'].'</label>
+            <label for="taxpercent" class="form-label">' . $localestrings['taxpercent'] . '</label>
             <input type="number" max="100" class="form-control" name="taxpercent" id="taxpercent"
-                aria-describedby="helpId" placeholder="'.$localestrings['taxpercent'].'" required />
+                aria-describedby="helpId" placeholder="' . $localestrings['taxpercent'] . '" required />
         </div>
     </div>
     <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;display:block">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="add" id="invalidCheck" required />
             <label class="form-check-label" for="invalidCheck">
-                '.$localestrings['datacheck'].$localestrings['addany']." ".$localestrings['tax'].$localestrings['endconfirm'].'
+                ' . $localestrings['datacheck'] . $localestrings['addany'] . " " . $localestrings['tax'] . $localestrings['endconfirm'] . '
             </label>
             <div class="invalid-feedback">
-                '.$localestrings['agreement'].' </div>
+                ' . $localestrings['agreement'] . ' </div>
         </div>
     </div>
     <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;display:block">
-        <button style="width:20%;" class="btn btn-primary" type="submit">'.$localestrings['addany']." ".$localestrings['tax'].'</button>
+        <button style="width:20%;" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['tax'] . '</button>
     </div>
 </form>');
 };
-function deltaxpage(){
+function deltaxpage()
+{
     $con = dbaccess();
     global $localestrings;
-    if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM ivas' ) ) === 0 ) {
-        echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>" );
-        echo( '<p>'.$localestrings['notaxestodel'].'</p></div>' );
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+        echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
     } else {
-        echo ( '<form action="taxactions.php" enctype="multipart/form-data" method="POST">
+        echo ('<form action="taxactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
-            <div class="col-2">
-            <label for="deltaxbyid" class="form-label">'.$localestrings['inttaxid'].'</label>
-          <input type="number" class="form-control" name="deltaxbyid" id="deltaxbyid" aria-describedby="helpId" placeholder="'.$localestrings['inttaxid'].'" required>
+            <div class="col-3">
+            <label for="deltaxbyid" class="form-label">' . $localestrings['inttaxid'] . '</label>
+          <input type="number" class="form-control" name="deltaxbyid" id="deltaxbyid" aria-describedby="helpId" placeholder="' . $localestrings['inttaxid'] . '" required>
           </div>
-          <div class="col-2">
-          <label for="deltaxbyname" class="form-label">'.$localestrings['taxname'].'</label>
-          <input type="text" class="form-control" name="deltaxbyname" id="deltaxbyname" aria-describedby="helpId" placeholder="'.$localestrings['taxname'].'" required>
+          <div class="col-3">
+          <label for="deltaxbyname" class="form-label">' . $localestrings['taxname'] . '</label>
+          <input type="text" class="form-control" name="deltaxbyname" id="deltaxbyname" aria-describedby="helpId" placeholder="' . $localestrings['taxname'] . '" required>
         </div>
         </div>
             <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="delete" id="invalidCheck" required>
           <label class="form-check-label" for="invalidCheck">
-    '.$localestrings['datacheck'].$localestrings['delany'].' '.$localestrings['tax'].$localestrings['endconfirm'].$localestrings['actionnotreversible'].'
+    ' . $localestrings['datacheck'] . $localestrings['delany'] . ' ' . $localestrings['tax'] . $localestrings['endconfirm'] . $localestrings['actionnotreversible'] . '
          </label>
           <div class="invalid-feedback">
-    '.$localestrings['agreement'].'      </div>
+    ' . $localestrings['agreement'] . '      </div>
         </div>
       </div>
       <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
-        <button style="width:20%" class="btn btn-primary" type="submit">'.$localestrings['delany'].' '.$localestrings['tax'].'</button>
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['delany'] . ' ' . $localestrings['tax'] . '</button>
       </div>
       </div>
-    </form>' );
-    }
-    ;
+    </form>');
+    };
 };
-function edittaxpage(){
-        $con = dbaccess();
+function edittaxpage()
+{
+    $con = dbaccess();
     global $localestrings;
-    if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM ivas' ) ) === 0 ) {
-        echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>" );
-        echo( '<p>'.$localestrings['notaxestodel'].'</p></div>' );
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+        echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
     } else {
-        echo ( '
+        echo ('
         <form action="taxactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
-          <label for="seltaxbyid" class="form-label">'.$localestrings['inttaxid'].'</label>
-          <input type="number" class="form-control" name="seltaxbyid" id="seltaxbyid" aria-describedby="helpId" placeholder="'.$localestrings['inttaxid'].'" required>
+            </button>    <div class="col-3">
+          <label for="seltaxbyid" class="form-label">' . $localestrings['inttaxid'] . '</label>
+          <input type="number" class="form-control" name="seltaxbyid" id="seltaxbyid" aria-describedby="helpId" placeholder="' . $localestrings['inttaxid'] . '" required>
         </div>
-        <div class="col-2">
-        <label for="newtaxname" class="form-label">'.$localestrings['taxname'].'</label>
-        <input type="text" class="form-control" name="newtaxname" id="newtaxname" aria-describedby="helpId" placeholder="'.$localestrings['taxname'].'">
+        <div class="col-3">
+        <label for="newtaxname" class="form-label">' . $localestrings['taxname'] . '</label>
+        <input type="text" class="form-control" name="newtaxname" id="newtaxname" aria-describedby="helpId" placeholder="' . $localestrings['taxname'] . '">
       </div>
-      <div class="col-2">
-          <label for="newtaxpercent" class="form-label">'.$localestrings['taxpercent'].'</label>
-          <input type="number" max="100" class="form-control" name="newtaxpercent" id="newtaxpercent" aria-describedby="helpId" placeholder="'.$localestrings['taxpercent'].'">
+      <div class="col-3">
+          <label for="newtaxpercent" class="form-label">' . $localestrings['taxpercent'] . '</label>
+          <input type="number" max="100" class="form-control" name="newtaxpercent" id="newtaxpercent" aria-describedby="helpId" placeholder="' . $localestrings['taxpercent'] . '">
         </div>
       </div>
         <div class="col-10" style="display:inline-flex; padding-left:2em;">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="edit" id="invalidCheck" required>
           <label class="form-check-label" for="invalidCheck">
-    '.$localestrings['datacheck'].$localestrings['savebutton'].$localestrings['endconfirm'].'      </label>
+    ' . $localestrings['datacheck'] . $localestrings['savebutton'] . $localestrings['endconfirm'] . '      </label>
           <div class="invalid-feedback">
-    '.$localestrings['agreement'].'      </div>
+    ' . $localestrings['agreement'] . '      </div>
         </div>
               </div>
     
       <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
-      <button style="width:20%" class="btn btn-primary" type="submit">'.$localestrings['savebutton'].'</button>
+      <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['savebutton'] . '</button>
       </div>
       </div>
-        </form>' );
-    }
-    ;
+        </form>');
+    };
 };
 
 /*------------------------------
 TAXES ACTIONS (ADD|DELETE|EDIT)
 ------------------------------*/
 
-function addtax($taxname,$taxpercent){
+function addtax($taxname, $taxpercent)
+{
     $con = dbaccess();
-    if(!isset($taxname)||!isset($taxpercent)){
+    if (!isset($taxname) || !isset($taxpercent)) {
         header('Location:taxes.php');
-    }else{
-    $action = "INSERT INTO ivas VALUES ('','".$taxname."',".$taxpercent.');';
+    } else {
+        $action = "INSERT INTO ivas VALUES ('','" . $taxname . "'," . $taxpercent . ');';
     };
-    mysqli_real_query($con,$action);
-    header( 'Location:taxes.php' );
+    mysqli_real_query($con, $action);
+    header('Location:taxes.php');
 }
-function deltax($deltaxbyid,$deltaxbyname){
+function deltax($deltaxbyid, $deltaxbyname)
+{
     $con = dbaccess();
-    if(!isset($deltaxbyid) || !isset($deltaxbyname)){
+    if (!isset($deltaxbyid) || !isset($deltaxbyname)) {
         header('Location:taxes.php');
-    }else{
-    $action = 'DELETE FROM ivas WHERE ivaid = '.$deltaxbyid." AND ivatype = '".$deltaxbyname."';";
+    } else {
+        $action = 'DELETE FROM ivas WHERE ivaid = ' . $deltaxbyid . " AND ivatype = '" . $deltaxbyname . "';";
     };
-    mysqli_real_query($con,$action);
-    header( 'Location:taxes.php' );
+    mysqli_real_query($con, $action);
+    header('Location:taxes.php');
 }
-function edittax($seltaxbyid,$newtaxname,$newtaxpercent){
+function edittax($seltaxbyid, $newtaxname, $newtaxpercent)
+{
     $con = dbaccess();
-    if(isset($seltaxbyid)){
-    if (!isset($newtaxname)) {
-        $newtaxname = mysqli_fetch_array( mysqli_query( $con, 'SELECT ivatype from ivas WHERE ivaid = '.$seltaxbyid.';' ) )[ 0 ];
-    } else {
-        $newtaxname = $_POST[ 'newtaxname' ];
-    }
-    if (!isset($newtaxpercent)) {
-        $newtaxpercent = mysqli_fetch_array( mysqli_query( $con, 'SELECT ivaperc from ivas WHERE ivaid = '.$seltaxbyid.';' ) )[ 0 ];
-    } else {
-        $newtaxpercent = $_POST[ 'newtaxpercent' ];
-    }
-    ;
-    $action = "UPDATE ivas set ivatype ='".$newtaxname."', ivaperc = ".$newtaxpercent.' WHERE ivaid = '.$seltaxbyid.';';
-    mysqli_real_query($con,$action);
-
-};
-header( 'Location:taxes.php' );
+    if (isset($seltaxbyid)) {
+        if (!isset($newtaxname)) {
+            $newtaxname = mysqli_fetch_array(mysqli_query($con, 'SELECT ivatype from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
+        } else {
+            $newtaxname = $_POST['newtaxname'];
+        }
+        if (!isset($newtaxpercent)) {
+            $newtaxpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
+        } else {
+            $newtaxpercent = $_POST['newtaxpercent'];
+        };
+        $action = "UPDATE ivas set ivatype ='" . $newtaxname . "', ivaperc = " . $newtaxpercent . ' WHERE ivaid = ' . $seltaxbyid . ';';
+        mysqli_real_query($con, $action);
+    };
+    header('Location:taxes.php');
 }
 
 /*---------------------
 DISCOUNT VOUCHERS PAGE
 ---------------------*/
-function discountvoucherspage(){
+function discountvoucherspage()
+{
     $con = dbaccess();
     global $localestrings;
     $administrator = admincheck();
-    echo("<!DOCTYPE html>
+    echo ("<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset='UTF-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>".$localestrings['webmgmt']."</title>
+    <title>" . $localestrings['webmgmt'] . "</title>
 </head>
 <body>
     <div class='p-0 mb-4 bg-light rounded-3'>
@@ -2521,52 +2528,49 @@ function discountvoucherspage(){
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
-                <h3><a href='../manager/webmanager.php'><i class='bi bi-arrow-left-circle'></i></a>".$localestrings['vouchers']."
+                <h3><a href='../manager/webmanager.php'><i class='bi bi-arrow-left-circle'></i></a>" . $localestrings['vouchers'] . "
 </h3>
                 <table class='table table-striped table-hover table-borderless table-primary align-middle'>
                     <thead>
                         <tr style='position: sticky; top:0;'>
-                            <th>".$localestrings['intvouchid']."</th>
-                            <th>".$localestrings['vouchcode']."</th>
-                            <th>".$localestrings['vouchdisc']."</th>
-                            <th>".$localestrings['vouchdateadded']."</th>
-                            <th>".$localestrings['vouchfinaldate']."</th>
+                            <th>" . $localestrings['intvouchid'] . "</th>
+                            <th>" . $localestrings['vouchcode'] . "</th>
+                            <th>" . $localestrings['vouchdisc'] . "</th>
+                            <th>" . $localestrings['vouchdateadded'] . "</th>
+                            <th>" . $localestrings['vouchfinaldate'] . "</th>
                         </tr>
                     </thead>
                     <tbody class='table-group-divider'>");
-if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM discountvouchers' ) ) === 0 ) {
-    echo ( '<tr>' );
-    echo( '<td colspan=5>'.$localestrings['vouchnotfound'].'</td></tr>' );
-} else {
-    $sqlvouchers = 'select * from discountvouchers';
-    $resultvouchers = ( $con->query( $sqlvouchers ) );
-    $rowvouchers = [];
-    if ( $resultvouchers->num_rows > 0 ) {
-        $rowvouchers = $resultvouchers->fetch_all( MYSQLI_ASSOC );
-    }
-    ;
-}
-;
-if ( !empty( $rowvouchers ) ) {
-    foreach ( $rowvouchers as $rowsvouchers )
- {
-echo("
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
+        echo ('<tr>');
+        echo ('<td colspan=5>' . $localestrings['vouchnotfound'] . '</td></tr>');
+    } else {
+        $sqlvouchers = 'select * from discountvouchers';
+        $resultvouchers = ($con->query($sqlvouchers));
+        $rowvouchers = [];
+        if ($resultvouchers->num_rows > 0) {
+            $rowvouchers = $resultvouchers->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($rowvouchers)) {
+        foreach ($rowvouchers as $rowsvouchers) {
+            echo ("
                         <tr>
 
-                            <td>".$rowsvouchers[ 'vouchid' ]."
+                            <td>" . $rowsvouchers['vouchid'] . "
         </td>
-                            <td>".$rowsvouchers[ 'voucher' ]."
+                            <td>" . $rowsvouchers['voucher'] . "
         </td>
-                            <td>". $rowsvouchers[ 'vouchpercent' ].$localestrings['percent'] ."
+                            <td>" . $rowsvouchers['vouchpercent'] . $localestrings['percent'] . "
         </td>
-                            <td>".$rowsvouchers[ 'creationdate' ]."
+                            <td>" . $rowsvouchers['creationdate'] . "
         </td>
-                            <td>".$rowsvouchers[ 'finaldate' ]."
+                            <td>" . $rowsvouchers['finaldate'] . "
         </td>
                         </tr>");
-};
+        };
     }
-echo("
+    echo ("
                         </tr>
                     </tbody>
                     <tfoot>
@@ -2580,49 +2584,49 @@ echo("
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
-                    <caption class='sticky-bottom p-2'>".( '('.mysqli_fetch_array( mysqli_query( $con, 'SELECT count(*) from discountvouchers' ) )[ 0 ].$localestrings['vouchers2show'] )."
+                    <caption class='sticky-bottom p-2'>" . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from discountvouchers'))[0] . $localestrings['vouchers2show']) . "
                     </caption>
                 </div>
             </div>
         </div>
     </div>");
-    if ( $administrator === true ) {
-        echo( '<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+    if ($administrator === true) {
+        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
         style="width:100%;position:fixed;left:0%;">
         <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
                 class="btn btn-primary" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                <p class="m-0 p-0 display-6">More Actions</p>
+                <p class="m-0 p-0 display-6">' . $localestrings['moreactions'] . '</p>
             </button></div>
         <div class="collapse" id="collapseExample">
     <nav class="nav nav-pills" id="nav-tab" role="tablist">
-        <a class="nav-link" id="nav-addvoucher-tab" data-bs-toggle="tab" href="#nav-addvoucher" role="tab"
-            aria-controls="nav-addvoucher" aria-selected="true">'.$localestrings['addany'].' '.$localestrings['vouchers'].'</a>
-        <a class="nav-link" id="nav-deletevoucher-tab" data-bs-toggle="tab" href="#nav-deletevoucher" role="tab"
-            aria-controls="nav-deletevoucher" aria-selected="false">'.$localestrings['delany'].' '.$localestrings['vouchers'].'</a>
-        <a class="nav-link" id="nav-editvoucher-tab" data-bs-toggle="tab" href="#nav-editvoucher" role="tab"
-            aria-controls="nav-editvoucher" aria-selected="false">'.$localestrings['editany'].' '.$localestrings['vouchers'].'</a>
-    </nav>' );
+        <a class="nav-link ml-1 mt-1" id="nav-addvoucher-tab" data-bs-toggle="tab" href="#nav-addvoucher" role="tab"
+            aria-controls="nav-addvoucher" aria-selected="true">' . $localestrings['addany'] . ' ' . $localestrings['vouchers'] . '</a>
+        <a class="nav-link ml-1 mt-1" id="nav-deletevoucher-tab" data-bs-toggle="tab" href="#nav-deletevoucher" role="tab"
+            aria-controls="nav-deletevoucher" aria-selected="false">' . $localestrings['delany'] . ' ' . $localestrings['vouchers'] . '</a>
+        <a class="nav-link ml-1 mt-1" id="nav-editvoucher-tab" data-bs-toggle="tab" href="#nav-editvoucher" role="tab"
+            aria-controls="nav-editvoucher" aria-selected="false">' . $localestrings['editany'] . ' ' . $localestrings['vouchers'] . '</a>
+    </nav>');
     } else {
-        echo( "<p class='m-2 p-2'>".$localestrings['voucheradvoptsonlyforadms'].'</p>' );
+        echo ("<p class='m-2 p-2'>" . $localestrings['voucheradvoptsonlyforadms'] . '</p>');
     }
-    echo("<div class='tab-content' id='nav-tabContent'>
+    echo ("<div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-addvoucher' role='tabpanel'
             aria-labelledby='nav-addvoucher-tab'>");
-            addvoucherpage();
-        echo("
+    addvoucherpage();
+    echo ("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-deletevoucher' role='tabpanel'
             aria-labelledby='nav-deletevoucher-tab'>");
-            delvoucherpage();
-        echo("
+    delvoucherpage();
+    echo ("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-editvoucher' role='tabpanel'
             aria-labelledby='nav-editvoucher-tab'>");
-editvoucherpage();
-        echo("
+    editvoucherpage();
+    echo ("
     </div>
 </body>
 </html>");
@@ -2631,183 +2635,707 @@ editvoucherpage();
 /*------------------------------
 DISCOUNT VOUCHERS ACTIONS PAGES
 ------------------------------*/
-function addvoucherpage(){
+function addvoucherpage()
+{
     global $localestrings;
-    echo('<form action="voucheractions.php" method="POST">
+    echo ('<form action="voucheractions.php" method="POST">
     <div class="col-10" style=" display:inline-flex;">
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
-            <label for="vouchername" class="form-label">'.$localestrings['vouchcode'].'</label>
+            <label for="vouchername" class="form-label">' . $localestrings['vouchcode'] . '</label>
             <input type="text" class="form-control" name="vouchername" id="vouchername" aria-describedby="helpId"
-                placeholder="'.$localestrings['vouchcode'].'" required />
+                placeholder="' . $localestrings['vouchcode'] . '" required />
         </div>
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
-            <label for="voucherdiscount" class="form-label">'.$localestrings['vouchdisc'].'</label>
+            <label for="voucherdiscount" class="form-label">' . $localestrings['vouchdisc'] . '</label>
             <input type="number" max="100" class="form-control" name="voucherdiscount" id="voucherdiscount"
-                aria-describedby="helpId" placeholder="'.$localestrings['vouchdisc'].'" required />
+                aria-describedby="helpId" placeholder="' . $localestrings['vouchdisc'] . '" required />
         </div>
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
-            <label for="finaldate" class="form-label">'.$localestrings['vouchfinaldate'].'</label>
+            <label for="finaldate" class="form-label">' . $localestrings['vouchfinaldate'] . '</label>
             <input type="date" class="form-control" name="finaldate" id="finaldate" aria-describedby="helpId"
-                placeholder="'.$localestrings['vouchfinaldate'].'" required />
+                placeholder="' . $localestrings['vouchfinaldate'] . '" required />
         </div>
     </div>
     <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;display:block">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="add" id="invalidCheck" required />
             <label class="form-check-label" for="invalidCheck">
-                '.$localestrings['datacheck'].$localestrings['addany']." ".$localestrings['vouchers'].$localestrings['endconfirm'] .'
+                ' . $localestrings['datacheck'] . $localestrings['addany'] . " " . $localestrings['vouchers'] . $localestrings['endconfirm'] . '
             </label>
             <div class="invalid-feedback">
-                '.$localestrings['agreement'].' </div>
+                ' . $localestrings['agreement'] . ' </div>
         </div>
     </div>
     <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;display:Block">
-        <button style="width:20%;" class="btn btn-primary" type="submit">'.$localestrings['addany']." ".$localestrings['vouchers'].'</button>
+        <button style="width:20%;" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['vouchers'] . '</button>
     </div>
     </div>
 </form>');
 }
-function delvoucherpage(){
+function delvoucherpage()
+{
     $con = dbaccess();
     global $localestrings;
-    if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM discountvouchers' ) ) === 0 ) {
-        echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>" );
-        echo( '<p>'.$localestrings['novoucherstodel'].'</p></div>' );
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+        echo ('<p>' . $localestrings['novoucherstodel'] . '</p></div>');
     } else {
-        echo ( '<form action="voucheractions.php" enctype="multipart/form-data" method="POST">
+        echo ('<form action="voucheractions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
-            <div class="col-2">
-            <label for="delvoucherbyid" class="form-label">'.$localestrings['intvouchid'].'</label>
-          <input type="number" class="form-control" name="delvoucherbyid" id="delvoucherbyid" aria-describedby="helpId" placeholder="'.$localestrings['intvouchid'].'" required>
+            <div class="col-3">
+            <label for="delvoucherbyid" class="form-label">' . $localestrings['intvouchid'] . '</label>
+          <input type="number" class="form-control" name="delvoucherbyid" id="delvoucherbyid" aria-describedby="helpId" placeholder="' . $localestrings['intvouchid'] . '" required>
           </div>
-          <div class="col-2">
-          <label for="delvoucherbyname" class="form-label">'.$localestrings['vouchcode'].'</label>
-          <input type="text" class="form-control" name="delvoucherbyname" id="delvoucherbyname" aria-describedby="helpId" placeholder="'.$localestrings['vouchcode'].'" required>
+          <div class="col-3">
+          <label for="delvoucherbyname" class="form-label">' . $localestrings['vouchcode'] . '</label>
+          <input type="text" class="form-control" name="delvoucherbyname" id="delvoucherbyname" aria-describedby="helpId" placeholder="' . $localestrings['vouchcode'] . '" required>
         </div>
         </div>
             <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="delete" id="invalidCheck" required>
           <label class="form-check-label" for="invalidCheck">
-            '.$localestrings['datacheck'].$localestrings['delany'].' '.$localestrings['vouchers'].$localestrings['endconfirm'].$localestrings['actionnotreversible'].'
+            ' . $localestrings['datacheck'] . $localestrings['delany'] . ' ' . $localestrings['vouchers'] . $localestrings['endconfirm'] . $localestrings['actionnotreversible'] . '
           </label>
           <div class="invalid-feedback">
-    '.$localestrings['agreement'].'      </div>
+    ' . $localestrings['agreement'] . '      </div>
         </div>
       </div>
       <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
-        <button style="width:20%" class="btn btn-primary" type="submit">'.$localestrings['delany'].' '.$localestrings['vouchers'].'</button>
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['delany'] . ' ' . $localestrings['vouchers'] . '</button>
       </div>
       </div>
-    </form>' );
-    }
-    ;
+    </form>');
+    };
 }
-function editvoucherpage(){
+function editvoucherpage()
+{
     $con = dbaccess();
     global $localestrings;
-    if ( mysqli_num_rows( mysqli_query( $con, 'SELECT * FROM discountvouchers' ) ) === 0 ) {
-        echo ( "<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>" );
-        echo( '<p>'.$localestrings['novoucherstoedit'].'</p></div>' );
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+        echo ('<p>' . $localestrings['novoucherstoedit'] . '</p></div>');
     } else {
-        echo ( '
+        echo ('
         <form action="voucheractions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
-          <label for="selvoucherbyid" class="form-label">'.$localestrings['intvouchid'].'</label>
-          <input type="number" class="form-control" name="selvoucherbyid" id="selvoucherbyid" aria-describedby="helpId" placeholder="'.$localestrings['intvouchid'].'" required>
+            </button>    <div class="col-3">
+          <label for="selvoucherbyid" class="form-label">' . $localestrings['intvouchid'] . '</label>
+          <input type="number" class="form-control" name="selvoucherbyid" id="selvoucherbyid" aria-describedby="helpId" placeholder="' . $localestrings['intvouchid'] . '" required>
         </div>
-        <div class="col-2">
-        <label for="newvouchername" class="form-label">'.$localestrings['vouchcode'].'</label>
-        <input type="text" class="form-control" name="newvouchername" id="newvouchername" aria-describedby="helpId" placeholder="'.$localestrings['vouchcode'].'">
+        <div class="col-3">
+        <label for="newvouchername" class="form-label">' . $localestrings['vouchcode'] . '</label>
+        <input type="text" class="form-control" name="newvouchername" id="newvouchername" aria-describedby="helpId" placeholder="' . $localestrings['vouchcode'] . '">
       </div>
-      <div class="col-2">
-          <label for="newvoucherpercent" class="form-label">'.$localestrings['vouchdisc'].'</label>
-          <input type="number" max="100" class="form-control" name="newvoucherpercent" id="newvoucherpercent" aria-describedby="helpId" placeholder="'.$localestrings['vouchdisc'].'">
+      <div class="col-3">
+          <label for="newvoucherpercent" class="form-label">' . $localestrings['vouchdisc'] . '</label>
+          <input type="number" max="100" class="form-control" name="newvoucherpercent" id="newvoucherpercent" aria-describedby="helpId" placeholder="' . $localestrings['vouchdisc'] . '">
         </div>
         </div>
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
-            </button>    <div class="col-2">
-          <label for="newcreationdate" class="form-label">'.$localestrings['vouchdateadded'].'</label>
-          <input type="date" class="form-control" name="newcreationdate" id="newcreationdate" aria-describedby="helpId" placeholder="'.$localestrings['vouchdateadded'].'" required>
+            </button>    <div class="col-3">
+          <label for="newcreationdate" class="form-label">' . $localestrings['vouchdateadded'] . '</label>
+          <input type="date" class="form-control" name="newcreationdate" id="newcreationdate" aria-describedby="helpId" placeholder="' . $localestrings['vouchdateadded'] . '" required>
         </div>
-        <div class="col-2">
-        <label for="newfinaldate" class="form-label">'.$localestrings['vouchfinaldate'].'</label>
-        <input type="date" class="form-control" name="newfinaldate" id="newfinaldate" aria-describedby="helpId" placeholder="'.$localestrings['vouchfinaldate'].'">
+        <div class="col-3">
+        <label for="newfinaldate" class="form-label">' . $localestrings['vouchfinaldate'] . '</label>
+        <input type="date" class="form-control" name="newfinaldate" id="newfinaldate" aria-describedby="helpId" placeholder="' . $localestrings['vouchfinaldate'] . '">
       </div>
       </div>
         <div class="col-10" style="display:inline-flex; padding-left:2em;">
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="edit" id="invalidCheck" required>
           <label class="form-check-label" for="invalidCheck">
-    '.$localestrings['datacheck'].$localestrings['savebutton'].$localestrings['endconfirm'].'      </label>
+    ' . $localestrings['datacheck'] . $localestrings['savebutton'] . $localestrings['endconfirm'] . '      </label>
           <div class="invalid-feedback">
-    '.$localestrings['agreement'].'      </div>
+    ' . $localestrings['agreement'] . '      </div>
         </div>      </div>
     
       <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
-      <button style="width:20%" class="btn btn-primary" type="submit">'.$localestrings['savebutton'].'</button>
+      <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['savebutton'] . '</button>
       </div>
       </div>
-        </form>' );
-    }
-    ;
+        </form>');
+    };
 }
 /*-----------------------------------------
 DISCOUNT VOUCHER ACTIONS (ADD|DELETE|EDIT)
 -----------------------------------------*/
-function addvoucher($vouchername,$voucherdiscount,$finaldate){
+function addvoucher($vouchername, $voucherdiscount, $finaldate)
+{
     $con = dbaccess();
-    if(!isset($vouchername)||!isset($voucherdiscount)||!isset($finaldate)){
+    if (!isset($vouchername) || !isset($voucherdiscount) || !isset($finaldate)) {
         header('Location:vouchers.php');
-    }else{
-    $action = "INSERT INTO discountvouchers VALUES ('','".$vouchername."',".$voucherdiscount.",'".mysqli_fetch_array( mysqli_query( $con, 'SELECT date(now());' ) )[ 0 ]."','".$finaldate."')";
-    mysqli_real_query($con,$action);
-}
-header( 'Location:vouchers.php' );
-}
-
-function delvoucher($delvoucherbyid,$delvoucherbyname){
-    $con = dbaccess();
-    if(!isset($delvoucherbyid) || !isset($delvoucherbyname)){
+    } else {
+        $action = "INSERT INTO discountvouchers VALUES ('','" . $vouchername . "'," . $voucherdiscount . ",'" . mysqli_fetch_array(mysqli_query($con, 'SELECT date(now());'))[0] . "','" . $finaldate . "')";
+        mysqli_real_query($con, $action);
+    }
     header('Location:vouchers.php');
-    }else{
-    $action = 'DELETE FROM discountvouchers WHERE vouchid = '.$delvoucherbyid." AND voucher = '".$delvoucherbyname."';";
-    mysqli_real_query($con,$action);
-};
-header( 'Location:vouchers.php' );
 }
 
-function editvoucher($selvoucherbyid,$newvouchername,$newvoucherpercent,$newcreationdate,$newfinaldate){
+function delvoucher($delvoucherbyid, $delvoucherbyname)
+{
     $con = dbaccess();
-    if(isset($selvoucherbyid)){
-    if ( !isset($newvouchername)) {
-        $vouchername = mysqli_fetch_array( mysqli_query( $con, 'SELECT voucher from discountvouchers WHERE vouchid = '.$_POST[ 'selvoucherbyid' ].';' ) )[ 0 ];
+    if (!isset($delvoucherbyid) || !isset($delvoucherbyname)) {
+        header('Location:vouchers.php');
     } else {
-        $vouchername = $newvouchername;
-    }
-    ;
-    if ( !isset($newvoucherpercent)) {
-        $voucherpercent = mysqli_fetch_array( mysqli_query( $con, 'SELECT vouchpercent from discountvouchers WHERE vouchid = '.$_POST[ 'selvoucherbyid' ].';' ) )[ 0 ];
+        $action = 'DELETE FROM discountvouchers WHERE vouchid = ' . $delvoucherbyid . " AND voucher = '" . $delvoucherbyname . "';";
+        mysqli_real_query($con, $action);
+    };
+    header('Location:vouchers.php');
+}
+
+function editvoucher($selvoucherbyid, $newvouchername, $newvoucherpercent, $newcreationdate, $newfinaldate)
+{
+    $con = dbaccess();
+    if (isset($selvoucherbyid)) {
+        if (!isset($newvouchername)) {
+            $vouchername = mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+        } else {
+            $vouchername = $newvouchername;
+        };
+        if (!isset($newvoucherpercent)) {
+            $voucherpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+        } else {
+            $voucherpercent = $newvoucherpercent;
+        };
+        if (!isset($newcreationdate)) {
+            $creationdate = mysqli_fetch_array(mysqli_query($con, 'SELECT creationdate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+        } else {
+            $creationdate = $newcreationdate;
+        };
+        if (!isset($newfinaldate)) {
+            $finaldate = mysqli_fetch_array(mysqli_query($con, 'SELECT finaldate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+        } else {
+            $finaldate = $newfinaldate;
+        }
+        $action = "UPDATE discountvouchers set voucher ='" . $vouchername . "', vouchpercent = " . $voucherpercent . ", creationdate = '" . $creationdate . "',finaldate = '" . $finaldate . "' WHERE vouchid = " . $selvoucherbyid . ';';
+        mysqli_real_query($con, $action);
+    };
+    header('Location:vouchers.php');
+}
+
+/*-----------
+PROFILE PAGE
+-----------*/
+function profile()
+{
+    $con = dbaccess();
+    global $localestrings;
+    echo ("<!DOCTYPE html>
+<html class = 'bg-light' lang = 'en'>
+
+<head>
+<meta charset = 'UTF-8'>
+<meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+<meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+
+<title>" . $localestrings['webmgmt'] . "</title>
+</head>
+
+<body class = 'bg-light'>
+<div class = 'p-0 mb-4 bg-light rounded-3'>
+<div class = 'container-fluid py-4 margin-0 padding-0'>
+<h3><a href = '../manager/webmanager.php'><i class = 'bi bi-arrow-left-circle'></i></a>" . $localestrings['userinfo'] . "</h3>
+
+<div class ='bg-light'>
+<table class = 'table-responsive table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th>" . $localestrings['intid'] . "</th>
+<th>" . $localestrings['username'] . "</th>
+<th>" . $localestrings['userdesc'] . "</th>
+<th>" . $localestrings['userpass'] . "</th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+        echo ('<tr><td colspan=10>' . $localestrings['msguser1'] . '</td></tr>');
+        echo ('<tr><td colspan=10>' . $localestrings['msguser2'] . '</td></tr>');
+        echo ('<tr><td colspan=10>' . $localestrings['msguser3'] . '</td></tr>');
     } else {
-        $voucherpercent = $newvoucherpercent;
+        $sql = "select * from users where username = '" . $_SESSION['name'] . "';";
+        $result = ($con->query($sql));
+        $row = [];
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row)) {
+        foreach ($row as $rows) {
+            echo ('
+        <tr>
+        <td>' . $rows['userid'] . '</td>
+        <td>' . $rows['username'] . '</td>
+        <td>' . $rows['realname'] . '</td>
+        <td>' . '*****' . '</td>
+        </tr>');
+        };
     }
-    ;
-    if ( !isset($newcreationdate) ) {
-        $creationdate = mysqli_fetch_array( mysqli_query( $con, 'SELECT creationdate from discountvouchers WHERE vouchid = '.$_POST[ 'selvoucherbyid' ].';' ) )[ 0 ];
+    echo ("
+    </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+    </table>
+    </div></div>
+    <div id='moreactions' class='bg-white border-top bottom sticky sticky-bottom'
+    style='width:100%;position:fixed;left:0%;'>
+    <div class='sticky sticky-bottom' style='bottom:0%;z-index:12500;top:0%;left:0%;display:block;'><button
+            class='btn btn-primary' type='button' data-bs-toggle='collapse'
+            data-bs-target='#collapseExample' aria-expanded='false' aria-controls='collapseExample'>
+            <p class='m-0 p-0 display-6'>" . $localestrings['edituser'] . "</p>
+        </button></div>
+    <div class='collapse' id='collapseExample'>
+    <nav class = 'nav nav-pills p-3' id = 'nav-tab' role = 'tablist'>
+    ");
+
+    /*-------------
+USER EDIT PAGE
+-------------*/
+    edituserpage();
+    echo ("
+    </nav>
+    </div>
+    </footer>
+    </body>
+    </html>");
+}
+function edituserpage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+        echo ("<div class='col-12 bg-light'>");
+        echo ('<p>' . $localestrings['msgdeluser1'] . '</p>');
+        echo ('<p>' . $localestrings['msgdeluser2'] . '</p>');
+        echo ('<p>' . $localestrings['msgdeluser3'] . '</p></div>');
     } else {
-        $creationdate = $newcreationdate;
-    }
-    ;
-    if ( !isset($newfinaldate) ) {
-        $finaldate = mysqli_fetch_array( mysqli_query( $con, 'SELECT finaldate from discountvouchers WHERE vouchid = '.$_POST[ 'selvoucherbyid' ].';' ) )[ 0 ];
-    } else {
-        $finaldate = $newfinaldate;
-    }
-    $action = "UPDATE discountvouchers set voucher ='".$vouchername."', vouchpercent = ".$voucherpercent.", creationdate = '".$creationdate."',finaldate = '".$finaldate."' WHERE vouchid = ".$selvoucherbyid.';';
-    mysqli_real_query($con,$action);
+        echo ('
+        <form action="useractions.php" method="POST">
+        <div class="p-4 col-10" style="display:inline-flex;">
+                <span class="navbar-toggler-icon"></span>
+            </button>    
+      <div class="col-3">
+          <label for="newuserdesc" class="form-label">' . $localestrings['userdesc'] . '</label>
+          <input type="text" class="form-control" name="newuserdesc" id="newuserdesc" aria-describedby="helpId" placeholder="' . $localestrings['userdesc'] . '">
+        </div>
+        <div class="col-3">
+        <label for="newuserpass" class="form-label">' . $localestrings['userpass'] . '</label>
+        <input type="password" class="form-control" name="newuserpass" id="newuserpass" aria-describedby="helpId" placeholder="' . $localestrings['userpass'] . '">
+      </div>
+        </div>
+        <div class="col-10 p-4" style="display:inline-flex;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="edit" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['savebutton'] . $localestrings['endconfirm'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>      </div>
+    
+      <div class="col-12 p-4" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+      <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['savebutton'] . '</button>
+      </div>
+      </div>
+        </form>');
+    };
 };
-header( 'Location:vouchers.php' );
+/*---------------------------------------
+USER EDITION (RESTRICTED TO ACTUAL USER)
+---------------------------------------*/
+function useredit($newuserdesc, $newuserpassunenc)
+{
+    $con = dbaccess();
+    if (!isset($newuserdesc) || $newuserdesc === '' || $newuserdesc === NULL) {
+        $userdesc = mysqli_fetch_array(mysqli_Query($con, "SELECT realname from users where username = '" . $_SESSION['name'] . "';"))[0];
+    } else {
+        $userdesc = $newuserdesc;
+    };
+    if (!isset($newuserpassunenc) || $newuserpassunenc === '' || $newuserpassunenc === NULL) {
+        $userpass = mysqli_fetch_array(mysqli_Query($con, "SELECT password from users where username = '" . $_SESSION['name'] . "';"))[0];
+    } else {
+        $userpass = hash("sha512", $newuserpassunenc);
+    };
+    $action = "UPDATE users set realname = '" . $userdesc . "', password = '" . $userpass . "' WHERE username = '" . $_SESSION['name'] . "';";
+    mysqli_real_query($con, $action);
+    header('Location:profile.php');
+}
+/*--------------------
+USERS PAGE FOR ADMINS
+--------------------*/
+function usersadmpage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    $administrator = admincheck();
+    echo ("    <!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' rel='stylesheet'
+        integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+    <link rel='icon' href='../src/images/favicon/favicon.svg' />
+    <title>" . $localestrings['webmgmt'] . "</title>
+</head>
+<body>
+    <div class='p-0 mb-4 bg-light rounded-3'>
+        <div class='container-fluid py-4 margin-0 padding-0'>
+            <h3><a href='../manager/webmanager.php'><i class='bi bi-arrow-left-circle'></i></a>" . $localestrings['userinfo'] . "</h3>
+            <div class='table-responsive bg-light' style='height:369px;overflow-y:scroll;'>
+                <table class='table table-striped table-hover table-borderless table-primary align-middle'>
+                    <thead>
+                        <tr style='position: sticky; top:0;'>
+                            <th>" . $localestrings['usersuserid'] . "</th>
+                            <th>" . $localestrings['username'] . "</th>
+                            <th>" . $localestrings['userdesc'] . "</th>
+                            <th>" . $localestrings['userpass'] . "</th>
+                        </tr>
+                    </thead>
+                    <tbody class='table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+        echo ("<tr><td colspan=10>" . $localestrings['msguser1'] . "</td></tr>");
+        echo ("<tr><td colspan=10>" . $localestrings['msguser2'] . "</td></tr>");
+        echo ("<tr><td colspan=10>" . $localestrings['msguser3'] . "</td></tr>");
+    } else {
+        $sql = 'select * from users';
+        $result = ($con->query($sql));
+        $row = [];
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row)) {
+        foreach ($row as $rows) {
+
+            echo ("                    <tr>
+
+                            <td>" . $rows['userid'] . "</td>
+                            <td>" . $rows['username'] . "</td>
+                            <td>" . $rows['realname'] . "</td>
+                            <td>" . '*****' . "</td>
+
+                        </tr>");
+        };
+    }
+
+    echo (" </tr>
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+            <caption class='sticky-bottom'>" . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from users'))[0] . $localestrings['users2show']) . "</caption>
+
+        </div>
+    </div>");
+    if ($administrator === true) {
+        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        style="width:100%;position:fixed;left:0%;">
+        <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;">
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        <p class="m-0 p-0 display-6">' . $localestrings['moreactions'] . '</p>
+        </button></div>
+        <div class="collapse" id="collapseExample">
+  <nav class="nav nav-pills" id="nav-tab" role="tablist">
+  <a class="nav-link ml-1 mt-1" id="nav-adduser-tab" data-bs-toggle="tab" href="#nav-adduser" role="tab" aria-controls="nav-adduser" aria-selected="true">' . $localestrings['addany'] . ' ' . $localestrings['user'] . '</a>
+  <a class="nav-link ml-1 mt-1" id="nav-deleteuser-tab" data-bs-toggle="tab" href="#nav-deleteuser" role="tab" aria-controls="nav-deleteuser" aria-selected="false">' . $localestrings['delany'] . ' ' . $localestrings['user'] . '</a>
+</nav>');
+    } else {
+        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . "</p>");
+    };
+    echo ("<div class='tab-content' id='nav-tabContent'>
+        <div class='bg-white tab-pane fade show' id='nav-adduser' role='tabpanel' aria-labelledby='nav-adduser-tab'>");
+    adduserpage();
+    echo ("
+    </div>
+    <div class='tab-content' id='nav-tabContent'>
+        <div class='bg-white tab-pane fade show' id='nav-deleteuser' role='tabpanel'
+            aria-labelledby='nav-deleteuser-tab'>");
+    deluserpage();
+    echo ("
+            </div>
+    </div>
+</body>
+</html>");
+};
+/*-----------------
+USER ACTIONS PAGES
+-----------------*/
+function adduserpage()
+{
+    global $localestrings;
+    echo ('<form action="useractions.php" method="POST">
+    <div class="col-10">
+        <div class="col-4" style="padding-left:2em; padding-top:1em;display:inline-flex;">
+            <div class="col-6">
+                <label for="newusern" class="form-label">' . $localestrings['username'] . '</label>
+                <input type="text" class="form-control" name="newusern" id="newusern" aria-describedby="helpId"
+                    placeholder="' . $localestrings['username'] . '" required />
+            </div>
+            <div class="col-6">
+                <label for="newuserdesc" class="form-label">' . $localestrings['userdesc'] . '</label>
+                <input type="text" class="form-control" name="newuserdesc" id="newuserdesc" aria-describedby="helpId"
+                    placeholder="' . $localestrings['userdesc'] . '" required />
+            </div>
+            <div class="col-6">
+                <label for="newuserpass" class="form-label">' . $localestrings['userpass'] . '</label>
+                <input type="password" class="form-control" name="newuserpass" id="newuserpass"
+                    aria-describedby="helpId" placeholder="' . $localestrings['userpass'] . '" required />
+            </div>
+        </div>
+    </div>
+    <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="add" id="invalidCheck" required />
+            <label class="form-check-label" for="invalidCheck">
+                ' . $localestrings['datacheck'] . $localestrings['addany'] . " " . $localestrings['user'] . $localestrings['endconfirm'] . '
+            </label>
+            <div class="invalid-feedback">
+                ' . $localestrings['agreement'] . '</div>
+        </div>
+    </div>
+    <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%;" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['user'] . '</button>
+    </div>
+    </div>
+</form>');
+}
+function deluserpage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msgdeluser1'] . '</p>');
+        echo ('<p>' . $localestrings['msgdeluser2'] . '</p>');
+        echo ('<p>' . $localestrings['msgdeluser3'] . '</p></div>');
+    } else {
+        echo ('<form action="useractions.php" enctype="multipart/form-data" method="POST">
+        <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+            <div class="col-3">
+            <label for="deluserbyid" class="form-label">' . $localestrings['usersuserid'] . '</label>
+          <input type="number" class="form-control" name="deluserbyid" id="deluserbyid" aria-describedby="helpId" placeholder="' . $localestrings['usersuserid'] . '" required>
+          </div>
+          <div class="col-3">
+          <label for="deluserbyname" class="form-label">' . $localestrings['username'] . '</label>
+          <input type="text" class="form-control" name="deluserbyname" id="deluserbyname" aria-describedby="helpId" placeholder="' . $localestrings['username'] . '" required>
+        </div>
+        </div>
+            <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="delete" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['delany'] . ' ' . $localestrings['user'] . $localestrings['endconfirm'] . $localestrings['actionnotreversible'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>
+      </div>
+      <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['delany'] . ' ' . $localestrings['user'] . '</button>
+      </div>
+      </div>
+    </form>');
+    };
+}
+
+/*---------------------------------------
+USER ACTIONS (ADD|DELETE)
+EDITING IS RESTRICTED TO THE ACTUAL USER
+---------------------------------------*/
+function adduser($username, $userrealname, $passwordunenc)
+{
+    $con = dbaccess();
+    if (!isset($username) || !isset($userrealname) || !isset($userdescription) || !isset($passwordunenc)) {
+        header('Location:users.php');
+    } else {
+        $passwordenc = hash("sha512", $passwordunenc);
+        $action = "INSERT INTO users VALUES('','" . $username . "','" . $userrealname . "','" . $passwordenc . "';";
+    };
+    mysqli_real_query($con, $action);
+    header('Location:users.php');
+};
+
+function deluser($deluserbyid, $deluserbyname)
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (!isset($deluserbyid) || !isset($deluserbyname)) {
+        exit($localestrings['cantdeluser']);
+    } elseif ($deluserbyid === mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username LIKE %admin%;"))[0] || $deluserbyname === mysqli_fetch_array(mysqli_query($con, "SELECT username from users where username LIKE %admin%;"))[0]) {
+        header('Location:users.php');
+    } else {
+        $action = "DELETE FROM users where userid = '" . $deluserbyid . "' and username = '" . $deluserbyname . "';";
+    };
+    mysqli_real_query($con, $action);
+    header('Location:users.php');
+};
+
+/*-------------------
+LANGUAGE CHANGE PAGE
+-------------------*/
+function langchangepage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    $administrator = admincheck();
+    echo ("<!DOCTYPE html>
+<html>
+<head>
+<meta charset = 'UTF-8'>
+<meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+<meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+<link rel = 'icon' href = '../src/images/favicon/favicon.svg'/>
+<title>" . $localestrings['webmgmt'] . "</title>
+</head>
+<body>
+<div class = 'p-0 mb-4 bg-light rounded-3'>
+<div class = 'container-fluid py-4 margin-0 padding-0'>
+<h3><a href = '../manager/webmanager.php'><i class = 'bi bi-arrow-left-circle'></i></a>" . $localestrings['language'] . "</h3>
+<div class = 'table-responsive bg-light' style = 'height:369px;overflow-y:scroll;'>
+<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th>" . $localestrings['intlangid'] . "</th>
+<th>" . $localestrings['textlangid'] . "</th>
+<th>" . $localestrings['country'] . "</th>
+<th>" . $localestrings['tablestorename']
+        . "</th>
+<th>" . $localestrings['currency']
+        . "</th>
+<th>" . $localestrings['selectedlang']
+        . "</th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>
+");
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * from locales order by selected desc;')) === 0) {
+        echo ('<tr><td colspan=10>".$msglocales1."</td></tr>');
+    } else {
+        $sql = 'SELECT * from locales ORDER BY selected desc;';
+        $result = ($con->query($sql));
+        $row = [];
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row)) {
+        foreach ($row as $rows) {
+
+            echo ("
+        <tr>
+        <td>" . $rows["localeid"]
+                . "</td>
+        <td>" . $rows["localetextid"]
+                . "</td>
+        <td>" . $rows["localecountry"]
+                . "</td>
+        <td>" . $rows["storename"]
+                . "</td>
+        <td>" . $rows["currency"]
+                . "</td>
+        <td>");
+            if ($rows['selected'] != NULL) {
+                echo 'Y';
+            } else {
+                echo 'N';
+            }
+            echo ("</td>
+        </tr>");
+        };
+    }
+    echo ("
+    </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+    </table>
+    </div>
+    <caption class = 'sticky-bottom'>" . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from locales'))[0] . $localestrings['locales2show']) . "</caption>
+
+    </div>
+    </div>");
+    if ($administrator === true) {
+        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        style="width:100%;position:fixed;left:0%;">
+        <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;">
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        <p class="m-0 p-0 display-6">' . $localestrings['language'] . '</p>
+        </button></div>
+        <div class="collapse" id="collapseExample">');
+        langchange();
+        echo ('
+        </div>
+        </div>
+        </div>
+    ');
+    } else {
+        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
+    };
+
+
+    echo ("
+    </body>
+    </html>");
+}
+
+/*--------------------
+LANGUAGE CHANGE QUERY
+--------------------*/
+function langchange()
+{
+    $con = dbaccess();
+    global $localestrings;
+    $administrator = admincheck();
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM LOCALES')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+    } else {
+        echo ('<form action="completelangchange.php" enctype="multipart/form-data" method="POST">
+        <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+            <div class="col-3">
+            <label for="textlangid" class="form-label">' . $localestrings['textlangid'] . '</label>
+            <select class="form-select" name="textlangid" id="textlangid" aria-label=' . $localestrings['textlangid'] . '>');
+        $sqllocales = 'select * from locales;';
+        $resultlocales = ($con->query($sqllocales));
+        $rowlocales = [];
+        if ($resultlocales->num_rows > 0) {
+            $rowlocales = $resultlocales->fetch_all(MYSQLI_ASSOC);
+        };
+        if (!empty($rowlocales))
+            foreach ($rowlocales as $rowslocales) {
+
+                echo ('<option value=' . $rowslocales['localeid'] . '>' . $rowslocales['localetextid'] . '</option>');
+            }
+        else {
+            echo ("
+    <option disabled value='0'>" . $localestrings['msglocales1'] . "</option>
+    <option disabled>" . $localestrings['msglocales1'] . '</option>');
+        }
+        echo ('</select>
+          </div>
+          </div>
+            <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="changelang" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['changelang'] . $localestrings['endconfirm'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>
+      </div>
+      <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['changelang'] . '</button>
+      </div>
+      </div>
+    </form>');
+    };
 }
