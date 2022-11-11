@@ -193,6 +193,7 @@ if ( $localecode === 'en-GB' ) {
         $localestrings['tableprodprice'] = $localestrings['product'].' '.$localestrings['prodprice']; 
         $localestrings['classname'] = $localestrings['class'].' '.$localestrings['name'];       
         $localestrings['typename'] = $localestrings['type'].' '.$localestrings['name'];     
+        $localestrings['taxname'] = $localestrings['tax'].' '.$localestrings['name'];     
     }else{
         $localestrings['sessionname'] = '';
         $localestrings['sessionrealname']= '';
