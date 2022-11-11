@@ -1597,7 +1597,7 @@ function classesandtypes()
         $localestrings['classesandtypes']
         . "</h3>
                 <div class='container-fluid py-4 margin-0 padding-0' style='display: inline-flex;'>
-                    <div class='table-responsive bg-light' style='overflow-y:scroll;width: 100%;
+                    <div class='table-responsive bg-light' style='top:16%;height:47vh;overflow-y:scroll;width: 100%;
 width: -moz-available;          /* WebKit-based browsers will ignore this. */
 width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
 width: fill-available;'>
@@ -2233,7 +2233,7 @@ function taxes(){
 
 <body>
     <div class='container-fluid py-4 margin-0 padding-0 bg-light'>
-        <div class='table-responsive bg-light' style='height:369px;overflow-y:scroll;width: 100%;
+        <div class='table-responsive bg-light' style='top:16%;height:57vh;overflow-y:scroll;width: 100%;
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
@@ -2302,7 +2302,14 @@ if ( !empty( $rowtaxes ) ) {
     </div>
     ");
     if ( $administrator === true ) {
-        echo('
+        echo('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        style="width:100%;position:fixed;left:0%;">
+        <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
+                class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                <p class="m-0 p-0 display-6">More Actions</p>
+            </button></div>
+        <div class="collapse" id="collapseExample">
     <nav class="nav nav-pills" id="nav-tab" role="tablist">
         <a class="nav-link" id="nav-addtax-tab" data-bs-toggle="tab" href="#nav-addtax" role="tab"
             aria-controls="nav-addtax" aria-selected="true">'.$localestrings['addany'].' '.$localestrings['tax'].'</a>
@@ -2317,17 +2324,17 @@ if ( !empty( $rowtaxes ) ) {
 echo("    <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-addtax' role='tabpanel' aria-labelledby='nav-addtax-tab'>");
             addtaxpage();
-        echo("</div>
+        echo("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-deletetax' role='tabpanel' aria-labelledby='nav-deletetax-tab'>");
             deltaxpage();
-       echo("</div>
+       echo("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-edittax' role='tabpanel' aria-labelledby='nav-edittax-tab'>");
             edittaxpage();
-        echo("</div>
+        echo("
     </div>
 </body>
 </html>");
@@ -2510,7 +2517,7 @@ function discountvoucherspage(){
 <body>
     <div class='p-0 mb-4 bg-light rounded-3'>
         <div class='container-fluid py-4 margin-0 padding-0'>
-            <div class='table-responsive bg-light' style='top:16%;height:40vh;overflow-y:scroll;width: 100%;
+            <div class='table-responsive bg-light' style='top:16%;height:55vh;overflow-y:scroll;width: 100%;
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;'>
@@ -2580,7 +2587,14 @@ echo("
         </div>
     </div>");
     if ( $administrator === true ) {
-        echo( '
+        echo( '<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        style="width:100%;position:fixed;left:0%;">
+        <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
+                class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                <p class="m-0 p-0 display-6">More Actions</p>
+            </button></div>
+        <div class="collapse" id="collapseExample">
     <nav class="nav nav-pills" id="nav-tab" role="tablist">
         <a class="nav-link" id="nav-addvoucher-tab" data-bs-toggle="tab" href="#nav-addvoucher" role="tab"
             aria-controls="nav-addvoucher" aria-selected="true">'.$localestrings['addany'].' '.$localestrings['vouchers'].'</a>
@@ -2596,19 +2610,19 @@ echo("
         <div class='bg-white tab-pane fade show' id='nav-addvoucher' role='tabpanel'
             aria-labelledby='nav-addvoucher-tab'>");
             addvoucherpage();
-        echo("</div>
+        echo("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-deletevoucher' role='tabpanel'
             aria-labelledby='nav-deletevoucher-tab'>");
             delvoucherpage();
-        echo("</div>
+        echo("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-editvoucher' role='tabpanel'
             aria-labelledby='nav-editvoucher-tab'>");
 editvoucherpage();
-        echo("</div>
+        echo("
     </div>
 </body>
 </html>");
