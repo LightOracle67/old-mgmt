@@ -164,7 +164,7 @@ function lang( string $localecode )
             'classesandtypes' => 'Información Avanzada de Clases & Tipos de Productos',
             'language' => 'Cambio de Idioma',
             'intlangid' => 'ID Interno de Idioma',
-            'textlangid' => 'Texto ID de Idioma',
+            'textlangid' => 'ID Regional de Idioma',
             'country' => 'País de Idioma',
             'tablestorename' => 'Nombre del Negocio',
             'currency' => 'Moneda de Idioma',
@@ -214,8 +214,9 @@ function lang( string $localecode )
         $localestrings[ 'userid' ] = '';
         $localestrings[ 'tableprodprice' ] = '';
         $localestrings[ 'classname' ] = '';
-
         $localestrings[ 'typename' ] = '';
+        $localestrings[ 'taxname' ] = '';
+        $localestrings[ 'edituser' ] = '';
 
     }
     return $localestrings;

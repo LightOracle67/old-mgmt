@@ -277,9 +277,9 @@ function checkin()
 </html>");
 };
 
-/* ---------------------------
+/*------------------------
 LOGIN - CREDENTIALS CHECK
---------------------------- */
+------------------------*/
 
 function login($username, $password, $localestrings)
 {
@@ -3155,11 +3155,11 @@ EDITING IS RESTRICTED TO THE ACTUAL USER
 function adduser($username, $userrealname, $passwordunenc)
 {
     $con = dbaccess();
-    if (!isset($username) || !isset($userrealname) || !isset($userdescription) || !isset($passwordunenc)) {
+    if (!isset($username) || !isset($userrealname) || !isset($passwordunenc)) {
         header('Location:users.php');
     } else {
-        $passwordenc = hash("sha512", $passwordunenc);
-        $action = "INSERT INTO users VALUES('','" . $username . "','" . $userrealname . "','" . $passwordenc . "';";
+        $passwordenc = hash('sha512', $passwordunenc);
+        $action = "INSERT INTO users VALUES (null,'" . $username . "','" . $userrealname . "','" . $passwordenc . "');";
     };
     mysqli_real_query($con, $action);
     header('Location:users.php');
@@ -3171,7 +3171,7 @@ function deluser($deluserbyid, $deluserbyname)
     global $localestrings;
     if (!isset($deluserbyid) || !isset($deluserbyname)) {
         exit($localestrings['cantdeluser']);
-    } elseif ($deluserbyid === mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username LIKE %admin%;"))[0] || $deluserbyname === mysqli_fetch_array(mysqli_query($con, "SELECT username from users where username LIKE %admin%;"))[0]) {
+    } elseif ($deluserbyid === mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username LIKE '%admin%';"))[0] || $deluserbyname === mysqli_fetch_array(mysqli_query($con, "SELECT username from users where username LIKE '%admin%';"))[0]) {
         header('Location:users.php');
     } else {
         $action = "DELETE FROM users where userid = '" . $deluserbyid . "' and username = '" . $deluserbyname . "';";
