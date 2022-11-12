@@ -4,8 +4,8 @@ function lang( string $localecode )
     $con = dbaccess();
     if ( $localecode === 'en-GB' ) {
         $localestrings = [
-            'storename' => mysqli_fetch_array( mysqli_query( $con, 'SELECT storename from locales where selected = 1' ) )[ 0 ],
-            'currencies' => mysqli_fetch_array( mysqli_query( $con, 'SELECT currency from locales where selected = 1;' ) )[ 0 ],
+            'storename' => mysqli_fetch_array( mysqli_query( $con, 'SELECT storename from locales where localetextid = "'.$localecode.'";') )[ 0 ],
+            'currencies' => mysqli_fetch_array( mysqli_query( $con, 'SELECT currency from locales where localetextid = "'.$localecode.'";') )[ 0 ],
             'locale' => $localecode,
             'home' => 'Home',
             'productrelated' => 'Product Options',

@@ -20,6 +20,16 @@ LOCALE SELECTOR
 function locales(int $page)
 {
     $con = dbaccess();
+    if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM locales where selected = 1;"))===0){
+        if ($page === 0) {
+            $localexten = '../locales/locales.en-GB.php';
+        } else {
+            $localexten = './locales/locales.en-GB.php';
+        }
+        include $localexten;
+        $localestrings = lang('en-GB');
+    
+    }else{
     if ($page === 0) {
         $localexten = '../locales/locales.' . mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected =1'))[0] . '.php';
     } else {
@@ -27,7 +37,8 @@ function locales(int $page)
     }
     include $localexten;
     $localestrings = lang(mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected = 1'))[0]);
-    return $localestrings;
+}
+return $localestrings;
 };
 
 /*--------------------------
