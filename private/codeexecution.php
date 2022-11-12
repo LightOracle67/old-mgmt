@@ -53,6 +53,7 @@ function bootstrapindex()
 <link rel="stylesheet" href="./styles/bicons/bootstrap-icons.css" />
 <script type="text/javascript" src="./styles/bootstrap/js/bootstrap.bundle.js" ></script>
 <link rel="icon" href="./src/images/favicon/favicon.svg" />
+
 ');
 }
 
@@ -524,21 +525,8 @@ function actualinvoiceid()
 {
     global $localestrings;
     $con = dbaccess();
-    $actualinvoiceid = mysqli_fetch_array(mysqli_query($con, "SELECT max(invoiceid) from actualinvoice;"))[0];
-    $invoicesmax = mysqli_fetch_array(mysqli_query($con, "SELECT max(invoiceid) from invoices"))[0];
-    /*HAY QUE REHACERLO*/
+    /*HAY QUE DARLE UN PENSAMIENTO ¡¡¡PRIORIDAD!!!*/
     /*¿INNER JOIN INVOICES -- ACTUALINVOICE --> (INVOICEID)?*/
-    if (!isset($_POST['actualinvoiceid']) && $actualinvoiceid === NULL) {
-        if ($actualinvoiceid === 0 && $invoicesmax === 0) {
-            $actualinvoiceid = 1;
-        } elseif ($actualinvoiceid > $invoicesmax) {
-            $actualinvoiceid = $actualinvoiceid + 1;
-        } elseif ($actualinvoiceid < $invoicesmax) {
-            $actualinvoiceid = $invoicesmax + 1;
-        };
-    } else {
-        return $actualinvoiceid;
-    };
 }
 
 function invoice()
@@ -896,8 +884,9 @@ printinginvoice(
             $_POST['vouchervalue'] === 0
         ) {
             $voucher = 0;
+        } else {
+            $voucher = $_POST['vouchervalue'];
         }
-        $voucher = $_POST['vouchervalue'];
     }
 
     echo ("<!DOCTYPE html>
@@ -3219,7 +3208,7 @@ function langchangepage()
 <tbody class = 'table-group-divider'>
 ");
     if (mysqli_num_rows(mysqli_query($con, 'SELECT * from locales order by selected desc;')) === 0) {
-        echo ('<tr><td colspan=10>".$msglocales1."</td></tr>');
+        echo ('<tr><td colspan=10>'.$localestrings['msglocales1'].'</td></tr>');
     } else {
         $sql = 'SELECT * from locales ORDER BY selected desc;';
         $result = ($con->query($sql));
@@ -3340,4 +3329,546 @@ function langchange()
       </div>
     </form>');
     };
+}
+
+/*------------------------
+INVOICES INFORMATION PAGE
+------------------------*/
+function invoicespage()
+{
+    $con = dbaccess();
+    $administrator = admincheck();
+    global $localestrings;
+    echo ("
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset = 'UTF-8'>
+<meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+<meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+<link href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' rel = 'stylesheet' integrity = 'sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin = 'anonymous'>
+<link rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css'>
+<link rel = 'icon' href = '../src/images/favicon/favicon.svg'/>
+<title>" . $localestrings['webmgmt'] . "</title>
+</head>
+<body>
+<div class = 'p-0 mb-4 bg-light rounded-3'>
+<div class = 'container-fluid py-4 margin-0 padding-0'>
+<h3><a href = '../manager/webmanager.php'><i class = 'bi bi-arrow-left-circle'></i></a>" . $localestrings['invoicesopts'] . "
+</h3>
+<div class = 'table-responsive bg-light' style = 'height:369px;overflow-y:scroll;'>
+<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th>" . $localestrings['invoiceid'] . "</th>
+<th>" . $localestrings['vouchers'] . "</th>
+<th>" . $localestrings['vouchdateadded'] . "</th>
+<th>" . $localestrings['paidfinalprice']
+        . "</th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>
+");
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * from invoices')) === 0) {
+        echo ('<tr><td colspan=10>' . $localestrings['msginvoice1'] . '</td></tr>');
+    } else {
+        $sql = 'SELECT * from invoices';
+        $result = ($con->query($sql));
+        $row = [];
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row)) {
+        foreach ($row as $rows) {
+
+            echo ('
+        <tr><td>' . $rows['invoiceid'] . '</td>
+        ');
+            if (intval(mysqli_fetch_array(mysqli_query($con, "SELECT vouchid from invoicediscount where invoiceid = '" . $rows['invoiceid'] . "';"))[0]) === 0) {
+                echo '<td>' . $localestrings['invoicenodisc'] . '</td>';
+            } else {
+                echo ('<td>' . mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . ' - ' . mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent FROM discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . '(%)</td>');
+            };
+            echo ('
+        <td>' . $rows['invoicedate']
+                . '</td>
+        <td>' . mysqli_fetch_array(mysqli_query($con, "SELECT sum(checkoutplusiva) from detailinvoice where invoiceid = '" . $rows['invoiceid'] . "';"))[0] . $localestrings['currencies'] . '</td>
+        </tr>');
+        };
+    }
+    echo ("
+    </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+    </table>
+    </div>
+    <caption class = 'sticky-bottom'>" . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from invoices'))[0] . $localestrings['invoices2show'])
+        . "</caption>
+
+    </div>
+    </div>");
+    if ($administrator === true) {
+        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        style="width:100%;position:fixed;left:0%;">
+        <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
+                class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample"
+                aria-expanded="false" aria-controls="collapseExample">
+                <h3 class="display-6">' . $localestrings['moreactions']
+            . '</h3>
+            </button></div>
+        <div class="collapse" id="collapseExample">
+  <nav class="nav nav-pills" id="nav-tab" role="tablist">
+  <a class="nav-link" id="nav-searchinvoicebyid-tab" data-bs-toggle="tab" href="#nav-searchinvoicebyid" role="tab" aria-controls="nav-searchinvoicebyid" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['intid'] . '</a>
+  <a class="nav-link" id="nav-searchinvoicebydate-tab" data-bs-toggle="tab" href="#nav-searchinvoicebydate" role="tab" aria-controls="nav-searchinvoicebydate" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['date'] . '</a>
+  <a class="nav-link" id="nav-searchinvoicebydaterange-tab" data-bs-toggle="tab" href="#nav-searchinvoicebydaterange" role="tab" aria-controls="nav-searchinvoicebydaterange" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['daterange'] . '</a>
+  <a class="nav-link" id="nav-searchinvoicebydiscountvoucher-tab" data-bs-toggle="tab" href="#nav-searchinvoicebydiscountvoucher" role="tab" aria-controls="nav-searchinvoicebydiscountvoucher" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['vouchers'] . '</a>
+</nav>');
+    } else {
+        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
+    };
+    echo ("
+    <div class = 'tab-content' id = 'nav-tabContent'>
+    <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebyid' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebyid-tab'>
+");
+    searchinvoicebyidpage();
+    echo ("
+    </div>
+    <div class = 'tab-content' id = 'nav-tabContent'>
+    <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydate' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydate-tab'>
+    ");
+    searchinvoicedatepage();
+    echo ("
+    </div>
+    <div class = 'tab-content' id = 'nav-tabContent'>
+    <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydaterange' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydaterange-tab'>
+    ");
+    searchinvoicedaterangepage();
+    echo ("
+    </div>
+    <div class = 'tab-content' id = 'nav-tabContent'>
+    <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydiscountvoucher' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydiscountvoucher-tab'>
+    ");
+    searchinvoicebydiscountvoucherpage();
+    echo ("</div>
+    </div>
+    </body>
+    </html>");
+}
+
+/*------------------------------------------------------------------------------
+INVOICE SEARCH PAGES (BY ID, BY DATE ADDED, BY DATE RANGE, BY DISCOUNT VOUCHER)
+------------------------------------------------------------------------------*/
+function searchinvoicebyidpage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+    } else {
+        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+        <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+            <div class="col-2">
+            <label for="invoiceid" class="form-label">' . $localestrings['invoiceid'] . '</label>
+          <input type="number" class="form-control" name="invoiceid" id="invoiceid" aria-describedby="helpId" placeholder="' . $localestrings['invoiceid'] . '" required>
+          </div>
+          </div>
+            <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="selinvoicebyid" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['search'] . $localestrings['endconfirm'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>
+      </div>
+      <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['search'] . '</button>
+      </div>
+      </div>
+    </form>');
+    };
+}
+function searchinvoicedatepage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+    } else {
+        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+        <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+            <div class="col-2">
+            <label for="selinvoicebydate" class="form-label">' . $localestrings['dateadded'] . '</label>
+          <input type="date" class="form-control" name="selinvoicebydate" id="selinvoicebydate" aria-describedby="helpId" placeholder="' . $localestrings['invoiceid'] . '" required>
+          </div>
+          </div>
+            <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="selinvoicebyexactdate" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['search'] . $localestrings['endconfirm'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>
+      </div>
+      <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['search'] . '</button>
+      </div>
+      </div>
+    </form>');
+    }
+}
+function searchinvoicedaterangepage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+    } else {
+        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+    <div class="col-2">
+    <label for="mindaterange" class="form-label">' . $localestrings['mindaterange'] . '</label>
+  <input type="date" class="form-control" name="mindaterange" id="mindaterange" aria-describedby="helpId" placeholder="' . $localestrings['invoiceid'] . '" required>
+  </div>
+  <div class="col-2">
+        <label for="maxdaterange" class="form-label">' . $localestrings['maxdaterange'] . '</label>
+      <input type="date" class="form-control" name="maxdaterange" id="maxdaterange" aria-describedby="helpId" placeholder="' . $localestrings['invoiceid'] . '" required>
+      </div>
+      </div>
+        <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="selinvoicebydaterange" id="invalidCheck" required>
+      <label class="form-check-label" for="invalidCheck">
+        ' . $localestrings['datacheck'] . $localestrings['search'] . $localestrings['endconfirm'] . '
+      </label>
+      <div class="invalid-feedback">
+' . $localestrings['agreement'] . '      </div>
+    </div>
+  </div>
+  <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+    <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['search'] . '</button>
+  </div>
+  </div>
+</form>');
+    }
+}
+function searchinvoicebydiscountvoucherpage()
+{
+    $con = dbaccess();
+    global $localestrings;
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+    } else {
+        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+        <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
+            <div class="col-2">
+            <label for="invoiceid" class="form-label">' . $localestrings['vouchers'] . '</label>
+            <select class="form-select" name="vouchervalue" id="vouchervalue" aria-label=' . $localestrings['selvouchlist'] . '>');
+        $sqlvouchers = 'select * from discountvouchers;';
+        $resultvouchers = ($con->query($sqlvouchers));
+        $rowvouchers = [];
+        if ($resultvouchers->num_rows > 0) {
+            $rowvouchers = $resultvouchers->fetch_all(MYSQLI_ASSOC);
+        };
+        if (!empty($rowvouchers))
+            foreach ($rowvouchers as $rowsvouchers) {
+
+                echo ('<option value=' . $rowsvouchers['vouchid'] . '>' . $rowsvouchers['voucher'] . ' (' . $rowsvouchers['vouchpercent'] . '%)</option>');
+            }
+        else {
+            echo ("
+    <option disabled value='0'>" . $localestrings['nodiscvouchers'] . "</option>
+    <option disabled>" . $localestrings['nodiscvouchers2'] . '</option>');
+        }
+        echo ("<option value='disabled'>" . $localestrings['novoucherapplied'] . '</option>');
+        echo ('</select>
+          </div>
+          </div>
+            <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="selinvoicebyvoucher" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            ' . $localestrings['datacheck'] . $localestrings['search'] . $localestrings['endconfirm'] . '
+          </label>
+          <div class="invalid-feedback">
+    ' . $localestrings['agreement'] . '      </div>
+        </div>
+      </div>
+      <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
+        <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['search'] . '</button>
+      </div>
+      </div>
+    </form>');
+    };
+}
+
+/*---------------------------------------------------------------------------------
+INVOICE SEARCH FUNCTION (BY ID, BY DATE ADDED, BY DATE RANGE, BY DISCOUNT VOUCHER)
+---------------------------------------------------------------------------------*/
+function searchinvoicebyid($selinvoicebyid)
+{
+    if (isset($selinvoicebyid)) {
+        $invoiceid = $selinvoicebyid;
+        $action = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
+        return $action;
+    } else {
+        header('Location:invoicesearch.php');
+    }
+};
+function searchinvoicebydate($dateadded)
+{
+    if (isset($dateadded)) {
+        $invoicedate = $dateadded;
+        $action = "SELECT * FROM invoices where invoicedate = '" . $invoicedate . "';";
+        return $action;
+    } else {
+        header('Location:invoicesearch.php');
+    }
+};
+function searchinvoicebyrange($datestart, $dateend)
+{
+    if (isset($datestart) && isset($dateend)) {
+        $invoicedatestart = $datestart;
+        $invoicedateend = $dateend;
+        $action = "SELECT * FROM invoices where invoicedate BETWEEN '" . $invoicedatestart . "' AND '" . $invoicedateend . "';";
+        return $action;
+    } else {
+        header('Location:invoicesearch.php');
+    }
+};
+function searchinvoicebydiscountvoucher($vouchid)
+{
+    if (isset($vouchid)) {
+        $voucherid = $vouchid;
+        $action = "SELECT * FROM invoices where invoiceid = (SELECT invoiceid from invoicediscount where vouchid = '" . $vouchid . "') ;";
+        return $action;
+    }
+};
+
+function search($action)
+{
+    $con = dbaccess();
+    global $localestrings;
+    echo ("
+    <!DOCTYPE html>
+<html>
+<head>
+<meta charset = 'UTF-8'>
+<meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+<meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+<link rel = 'icon' href = '../src/images/favicon/favicon.svg'/>
+<title>" . $localestrings['webmgmt'] . "</title>
+</head>
+<body class = 'bg-light'>
+
+<div class = 'p-0 mb-4 bg-light rounded-3'>
+<div class = 'container-fluid py-4 margin-0 padding-0'>
+<h3><a href = 'invoicesearch.php'><i class = 'bi bi-arrow-left-circle'></i></a>" . $localestrings['invoicesearchresult'] . "</h3>
+<div class = 'table-responsive bg-light'>
+<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th>" . $localestrings['invoiceid'] . "</th>
+<th>" . $localestrings['vouchdateadded'] . "</th>
+<th>" . $localestrings['invoiceuser']
+        . "</th>
+<th>" . $localestrings['selinvoice'] . "</th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, $action)) === 0) {
+        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+    } else {
+        $sql2 = $action;
+        $result2 = ($con->query($sql2));
+        $row2 = [];
+        if ($result2->num_rows > 0) {
+            $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row2)) {
+        foreach ($row2 as $rows2) {
+
+            echo ("
+            <tr>
+
+            <td>" . $rows2['invoiceid'] . "
+            </td>
+            <td>" . $rows2['invoicedate'] . "</td>
+            <td>" . mysqli_fetch_array(mysqli_query($con, "SELECT realname from users where userid = '" . $rows2['userid'] . "';"))[0] . "</td>
+            <td><form action='moreinformationinvoice.php' method ='POST'><button name='invoiceid' type='submit' value='" . $rows2['invoiceid'] . "'>" . $localestrings['moreinformation'] . "</button></td>
+            </tr>");
+        };
+    }
+    echo ("
+        </tr>
+        </tbody>
+        <tfoot>
+        <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $action)) . $localestrings['details2show']) . "
+        </tfoot>
+        </table>
+        </div>
+        </caption>
+        </div></div>
+        </body>
+        </html>
+    ");
+};
+
+/*---------------------------
+ADVANCED INVOICE INFORMATION
+---------------------------*/
+function advancedinvoiceinfo($invoiceid)
+{
+    $con = dbaccess();
+    global $localestrings;
+    $sql1 = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
+    $sql2 = "SELECT * FROM detailinvoice where invoiceid = '" . $invoiceid . "';";
+    $sql3 = "SELECT * FROM invoicediscount where invoiceid = '" . $invoiceid . "';";
+    echo ("<!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset = 'UTF-8'>
+    <meta http-equiv = 'X-UA-Compatible' content = 'IE=edge'>
+    <meta name = 'viewport' content = 'width=device-width, initial-scale=1.0'>
+    <link rel = 'icon' href = '../src/images/favicon/favicon.svg'/>
+    <title>" . $localestrings['webmgmt'] . "</title>
+    </head>
+    <body class = 'bg-light'>
+    
+    <div class = 'p-0 mb-4 bg-light rounded-3'>
+    <div class = 'container-fluid py-4 margin-0 padding-0'>
+    <h3><a href = 'invoicesearch.php'><i class = 'bi bi-arrow-left-circle'></i></a>" . $localestrings['invoicedetailedinfo'] . "</h3>
+    <table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+<thead>
+<tr style = 'position: sticky; top:0;'>
+<th>" . $localestrings['invoiceid'] . "</th>
+<th>" . $localestrings['vouchdateadded'] . "</th>
+<th>" . $localestrings['invoiceuser']
+        . "</th>
+</tr>
+</thead>
+<tbody class = 'table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, $sql1)) === 0) {
+        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+    } else {
+        $result1 = ($con->query($sql1));
+        $row1 = [];
+        if ($result1->num_rows > 0) {
+            $row1 = $result1->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row1)) {
+        foreach ($row1 as $rows1) {
+
+            echo ("
+            <tr>
+
+            <td>" . $rows1['invoiceid'] . "</td>
+            <td>" . $rows1['invoicedate'] . "</td>
+            <td>" . mysqli_fetch_array(mysqli_query($con, "SELECT realname from users where userid = '" . $rows1['userid'] . "';"))[0] . "</td>
+            </tr>");
+        };
+    }
+    echo ("
+        </tr>
+        </tbody>
+        <tfoot>
+        <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql1)) . $localestrings['details2showfrominvoices']) . "
+        </tfoot>
+        </table>");
+    echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+        <thead>
+        <tr style = 'position: sticky; top:0;'>
+        <th>" . $localestrings['invoiceid'] . "</th>
+        <th>" . $localestrings['product'] . ' ' . $localestrings['intid'] . "</th>
+        <th>" . $localestrings['prodprice'] . "</th>
+        <th>" . $localestrings['quantity'] . "</th>
+        <th>" . $localestrings['checkout'] . "</th>
+        <th>" . $localestrings['checkoutiva'] . "</th>
+        <th>" . $localestrings['paidfinalprice'] . "</th>
+        </tr>
+        </thead>
+        <tbody class = 'table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, $sql2)) === 0) {
+        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+    } else {
+        $result2 = ($con->query($sql2));
+        $row2 = [];
+        if ($result2->num_rows > 0) {
+            $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row2)) {
+        foreach ($row2 as $rows2) {
+
+            echo ("
+                    <tr>
+        
+                    <td>" . $rows2['invoiceid'] . "</td>
+                    <td>" . $rows2['prodid'] . "</td>
+                    <td>" . $rows2['price'] . "</td>
+                    <td>" . $rows2['quantity'] . "</td>
+                    <td>" . $rows2['checkout'] . "</td>
+                    <td>" . $rows2['checkoutplusiva'] . "</td>
+                    <td>".mysqli_fetch_array(mysqli_query($con,"SELECT sum(checkoutplusiva) from detailinvoice where invoiceid = '".$rows1['invoiceid']."';"))[0]."</td>
+
+                    </tr>");
+        };
+    }
+    echo ("
+                </tr>
+                </tbody>
+                <tfoot>
+                <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql2)) . $localestrings['details2showfrominvoices']) . "
+                </tfoot>
+                </table>");
+    echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+                        <thead>
+                        <tr style = 'position: sticky; top:0;'>
+                        <th>" . $localestrings['invoiceid'] . "</th>
+                        <th>" . $localestrings['product'] . ' ' . $localestrings['intid'] . "</th>
+                        <th>" . $localestrings['prodprice'] . "</th>
+                        </tr>
+                        </thead>
+                        <tbody class = 'table-group-divider'>");
+    if (mysqli_num_rows(mysqli_query($con, $sql3)) === 0) {
+        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+    } else {
+        $result3 = ($con->query($sql3));
+        $row3 = [];
+        if ($result3->num_rows > 0) {
+            $row3 = $result3->fetch_all(MYSQLI_ASSOC);
+        };
+    };
+    if (!empty($row3)) {
+        foreach ($row3 as $rows3) {
+
+            echo ("
+                                    <tr>");
+            if ($rows3['invoiceid'] === 0) {
+            } else {
+                echo ("<td>" . $rows3['invoiceid'] . "</td>
+                                    <td>" . $rows3['vouchid'] . "</td>");
+            };
+            echo ("<td>" . mysqli_fetch_array(mysqli_query($con, "SELECT voucher from discountvouchers where vouchid = '" . $rows3['vouchid'] . "';"))[0] . " - ".mysqli_fetch_array(mysqli_query($con,"SELECT vouchpercent from discountvouchers where vouchid = '".$rows3['vouchid']."';"))[0]."(%)</td>
+                                    </tr>");
+        };
+    }
+    echo ("
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql3)) . $localestrings['vouchersapplied']) . "
+                                </tfoot>
+                                </table>");
 }
