@@ -30,7 +30,7 @@ INSERT INTO `locales` (
         `currency`,
         `selected`
     )
-VALUES ('', 'en-GB', 'Britain', 'CHANGEME', '£', '1');
+VALUES ('', 'en-GB', 'Britain', 'Store Name', '£', '1'),('', 'es-ES', 'España', 'Nombre del Negocio', '€', '0');
 /*USERS TABLE*/
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (

@@ -190,7 +190,9 @@ function lang( string $localecode )
             'details2showfrominvoices' => ') detail(s) to show from `invoices`',
             'details2showfrominvoicediscount' => ') detail(s) to show from `invoicediscount`',
             'vouchersapplied' => ') discount voucher(s) applied',
-            'invoicedetailedinfo' => 'Detailed Invoice Information'
+            'invoicedetailedinfo' => 'Detailed Invoice Information',
+            'noadmnoaccess' => 'Your user can not be identified as Administrator. You can not access this section.',
+            'goback' => 'Go Back'
         ];
     }
     ;

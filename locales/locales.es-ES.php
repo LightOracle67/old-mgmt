@@ -190,7 +190,9 @@ function lang( string $localecode )
             'details2showfrominvoices' => ') detalle(s) a mostrar de `invoices`',
             'details2showfrominvoicediscount' => ') detalle(s) a mostrar de `invoicediscount`',
             'vouchersapplied' => ') vale(s) descuento aplicado(s)',
-            'invoicedetailedinfo' => 'Información Detallada de Factura'
+            'invoicedetailedinfo' => 'Información Detallada de Factura',
+            'noadmnoaccess' => 'Tu usuario no se puede identificar como Administrador. No puedes acceder a esta sección.',
+            'goback' => 'Volver Atrás'
         ];
     }
     ;

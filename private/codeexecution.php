@@ -20,7 +20,7 @@ LOCALE SELECTOR
 function locales(int $page)
 {
     $con = dbaccess();
-    if(mysqli_num_rows(mysqli_query($con,"SELECT * FROM locales where selected = 1;"))===0){
+    if (mysqli_num_rows(mysqli_query($con, "SELECT * FROM locales where selected = 1;")) === 0) {
         if ($page === 0) {
             $localexten = '../locales/locales.en-GB.php';
         } else {
@@ -28,17 +28,16 @@ function locales(int $page)
         }
         include $localexten;
         $localestrings = lang('en-GB');
-    
-    }else{
-    if ($page === 0) {
-        $localexten = '../locales/locales.' . mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected =1'))[0] . '.php';
     } else {
-        $localexten = './locales/locales.' . mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected =1'))[0] . '.php';
+        if ($page === 0) {
+            $localexten = '../locales/locales.' . mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected =1'))[0] . '.php';
+        } else {
+            $localexten = './locales/locales.' . mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected =1'))[0] . '.php';
+        }
+        include $localexten;
+        $localestrings = lang(mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected = 1'))[0]);
     }
-    include $localexten;
-    $localestrings = lang(mysqli_fetch_array(mysqli_query($con, 'SELECT localetextid FROM locales where selected = 1'))[0]);
-}
-return $localestrings;
+    return $localestrings;
 };
 
 /*--------------------------
@@ -327,7 +326,6 @@ NAVTOP DESIGN
 
 function navtop($localestrings)
 {
-
     bootstrap();
     responsive();
     $administrator = admincheck();
@@ -1277,9 +1275,12 @@ PRODUCT ACTIONS PAGE (ADD | DELETE | EDIT) FORMS
 -----------------------------------------------*/
 function addprodpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    echo ('<form action="productactions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        echo ('<form action="productactions.php" enctype="multipart/form-data" method="POST">
     <div style="display:inline-flex; padding-left:2em; width:100%">
         </button>
         <div class="col-3">
@@ -1317,42 +1318,42 @@ function addprodpage()
         <div class="col-3">
             <label for="prodclass" class="form-label">' . $localestrings['tableprodclass'] . '</label>
             <select class="form-select form-select-lg" name="prodclass" id="UsernameInput" required>');
-    if (mysqli_num_rows(mysqli_query($con, "SELECT classid FROM classlist;")) <= 0) {
-        echo ("<option disabled selected>");
-        echo $localestrings['noclassesfound'];
-        echo ("</option>");
-        echo ("<option disabled>");
-        echo $localestrings['add1ormore'];
-        echo ("</option>");
-    } else {
-        $classes = mysqli_fetch_all(mysqli_query($con, 'SELECT classid,classname FROM classlist'));
-        for ($x = 0; $x < mysqli_num_rows(mysqli_query($con, "SELECT classid FROM store.classlist;")); $x++) {
-            echo ("<option value='") . $classes[$x][0] . ("'>");
-            echo $classes[$x][1];
+        if (mysqli_num_rows(mysqli_query($con, "SELECT classid FROM classlist;")) <= 0) {
+            echo ("<option disabled selected>");
+            echo $localestrings['noclassesfound'];
             echo ("</option>");
+            echo ("<option disabled>");
+            echo $localestrings['add1ormore'];
+            echo ("</option>");
+        } else {
+            $classes = mysqli_fetch_all(mysqli_query($con, 'SELECT classid,classname FROM classlist'));
+            for ($x = 0; $x < mysqli_num_rows(mysqli_query($con, "SELECT classid FROM store.classlist;")); $x++) {
+                echo ("<option value='") . $classes[$x][0] . ("'>");
+                echo $classes[$x][1];
+                echo ("</option>");
+            }
         }
-    }
-    echo ('</select>
+        echo ('</select>
         </div>
         <div class="col-3">
             <label for="prodtype" class="form-label">' . $localestrings['tableprodtype'] . '</label>
             <select class="form-select form-select-lg" name="prodtype" id="UsernameInput" required>');
-    if (mysqli_num_rows(mysqli_query($con, "SELECT typeid FROM typelist;")) <= 0) {
-        echo ("<option disabled selected>");
-        echo $localestrings['notypesfound'];
-        echo ("</option>");
-        echo ("<option disabled>");
-        echo $localestrings['add1ormore'];
-        echo ("</option>");
-    } else {
-        $types = mysqli_fetch_all(mysqli_query($con, 'SELECT typeid,typename FROM typelist'));
-        for ($x = 0; $x < mysqli_num_rows(mysqli_query($con, "SELECT typeid FROM store.typelist;")); $x++) {
-            echo ("<option value='") . $types[$x][0] . ("'>");
-            echo $types[$x][1];
+        if (mysqli_num_rows(mysqli_query($con, "SELECT typeid FROM typelist;")) <= 0) {
+            echo ("<option disabled selected>");
+            echo $localestrings['notypesfound'];
             echo ("</option>");
-        }
-    };
-    echo (' </select>
+            echo ("<option disabled>");
+            echo $localestrings['add1ormore'];
+            echo ("</option>");
+        } else {
+            $types = mysqli_fetch_all(mysqli_query($con, 'SELECT typeid,typename FROM typelist'));
+            for ($x = 0; $x < mysqli_num_rows(mysqli_query($con, "SELECT typeid FROM store.typelist;")); $x++) {
+                echo ("<option value='") . $types[$x][0] . ("'>");
+                echo $types[$x][1];
+                echo ("</option>");
+            }
+        };
+        echo (' </select>
         </div>
         </div>
         <div style="display:inline-flex;padding-left:2em">
@@ -1380,16 +1381,24 @@ function addprodpage()
     </div>
 </form>
 ');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function delprodpage()
 {
-    global $localestrings;
-    $con = dbaccess();
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM products')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['noprods'] . $localestrings['delany'] . '.' . $localestrings['noprods2'] . '</p></div>');
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        $con = dbaccess();
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM products')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['noprods'] . $localestrings['delany'] . '.' . $localestrings['noprods2'] . '</p></div>');
+        } else {
+            echo ('
         <form action="productactions.php" method="POST">
         <div class="col-10"  style="display:inline-flex; padding-left:2em;></button>
                 <span class="navbar-toggler-icon"></span>
@@ -1420,16 +1429,24 @@ function delprodpage()
       </div>
     </form>
     ');
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function editprodpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM products')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'><p>" . $localestrings['noprods'] . $localestrings['editany'] . '.' . $localestrings['noprods2'] . "</p></div></div>");
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM products')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'><p>" . $localestrings['noprods'] . $localestrings['editany'] . '.' . $localestrings['noprods2'] . "</p></div></div>");
+        } else {
+            echo ('
         <form action="productactions.php" method="POST" enctype="multipart/form-data">
         <div class="col-10" style="display:inline-flex; padding-left:2em;">
                 <span class="navbar-toggler-icon"></span>
@@ -1466,50 +1483,50 @@ function editprodpage()
         <div class="col-3">
         <label for="prodclass" class="form-label">' . $localestrings['tableprodclass'] . '</label>
         <select class="form-select form-select-lg" name="prodclass" id="prodclass" required>');
-        if (mysqli_num_rows(mysqli_query($con, 'SELECT classid FROM classlist;')) <= 0) {
-            echo ('<option disabled selected>');
-            echo $localestrings['noclassesfound'];
-            echo ('</option>');
-            echo ('<option disabled>');
-            echo $localestrings['add1ormore'];
-            echo ('</option>');
-        } else {
-            $classes = mysqli_fetch_all(mysqli_query($con, 'SELECT classid,classname FROM classlist'));
-            for (
-                $x = 0;
-                $x < mysqli_num_rows(mysqli_query($con, 'SELECT classid FROM store.classlist;'));
-                $x++
-            ) {
-                echo ("<option value='") . $classes[$x][0] . ("'>");
-                echo $classes[$x][1];
+            if (mysqli_num_rows(mysqli_query($con, 'SELECT classid FROM classlist;')) <= 0) {
+                echo ('<option disabled selected>');
+                echo $localestrings['noclassesfound'];
                 echo ('</option>');
-            }
-        };
-        echo ("</select>
+                echo ('<option disabled>');
+                echo $localestrings['add1ormore'];
+                echo ('</option>');
+            } else {
+                $classes = mysqli_fetch_all(mysqli_query($con, 'SELECT classid,classname FROM classlist'));
+                for (
+                    $x = 0;
+                    $x < mysqli_num_rows(mysqli_query($con, 'SELECT classid FROM store.classlist;'));
+                    $x++
+                ) {
+                    echo ("<option value='") . $classes[$x][0] . ("'>");
+                    echo $classes[$x][1];
+                    echo ('</option>');
+                }
+            };
+            echo ("</select>
         </div>
         <div class='col-3'>
         <label for='prodtype' class='form-label'>" . $localestrings['tableprodtype'] . "</label>
         <select class='form-select form-select-lg' name='prodtype' id='UsernameInput' required>");
-        if (mysqli_num_rows(mysqli_query($con, 'SELECT typeid FROM typelist;')) <= 0) {
-            echo ('<option disabled selected>');
-            echo $localestrings['notypesfound'];
-            echo ('</option>');
-            echo ('<option disabled>');
-            echo $localestrings['add1ormore'];
-            echo ('</option>');
-        } else {
-            $types = mysqli_fetch_all(mysqli_query($con, 'SELECT typeid,typename FROM typelist'));
-            for (
-                $x = 0;
-                $x < mysqli_num_rows(mysqli_query($con, 'SELECT typeid FROM store.typelist;'));
-                $x++
-            ) {
-                echo ("<option value='") . $types[$x][0] . ("'>");
-                echo $types[$x][1];
+            if (mysqli_num_rows(mysqli_query($con, 'SELECT typeid FROM typelist;')) <= 0) {
+                echo ('<option disabled selected>');
+                echo $localestrings['notypesfound'];
                 echo ('</option>');
-            }
-        };
-        echo ("</select>
+                echo ('<option disabled>');
+                echo $localestrings['add1ormore'];
+                echo ('</option>');
+            } else {
+                $types = mysqli_fetch_all(mysqli_query($con, 'SELECT typeid,typename FROM typelist'));
+                for (
+                    $x = 0;
+                    $x < mysqli_num_rows(mysqli_query($con, 'SELECT typeid FROM store.typelist;'));
+                    $x++
+                ) {
+                    echo ("<option value='") . $types[$x][0] . ("'>");
+                    echo $types[$x][1];
+                    echo ('</option>');
+                }
+            };
+            echo ("</select>
             </div>
 
             <div class='col-3'>
@@ -1535,7 +1552,12 @@ function editprodpage()
           </div>
         </form>                </div>
         </div>");
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*----------------------
@@ -1543,45 +1565,69 @@ PRODUCT ACTIONS (QUERY)
 ----------------------*/
 function addprod($extprodid, $prodname, $fullname, $description, $dateadded, $price, $class, $type, $image)
 {
-    $con = dbaccess();
-    if ($extprodid === null || $prodname === null || $fullname === null || $description === null || $dateadded === null || $price === null || $class === null || $type === null) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if ($extprodid === null || $prodname === null || $fullname === null || $description === null || $dateadded === null || $price === null || $class === null || $type === null) {
+            header('Location:products.php');
+            exit();
+        } else {
+            if ($dateadded === '') {
+                $dateadded = date('Y-m-d');
+            } else {
+                $dateaddedprod = $dateadded;
+            }
+            if (!isset($image)) {
+                $prodimage = "default.png";
+            } else {
+                $prodimage = $image;
+            }
+            $action = "INSERT INTO products VALUES (''," . $extprodid . ",'" . $prodname . "','" . $fullname . "','" . $description . "','" . $dateaddedprod . "'," . $price . "," . $class . "," . $type . ",'" . $prodimage . "')";
+            mysqli_real_query($con, $action);
+        }
         header('Location:products.php');
-        exit();
     } else {
-        if ($dateadded === '') {
-            $dateadded = date('Y-m-d');
-        } else {
-            $dateaddedprod = $dateadded;
-        }
-        if (!isset($image)) {
-            $prodimage = "default.png";
-        } else {
-            $prodimage = $image;
-        }
-        $action = "INSERT INTO products VALUES (''," . $extprodid . ",'" . $prodname . "','" . $fullname . "','" . $description . "','" . $dateaddedprod . "'," . $price . "," . $class . "," . $type . ",'" . $prodimage . "')";
-        mysqli_real_query($con, $action);
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-    header('Location:products.php');
-};
+}
 
 function delprod($delprodbyid, $delprodbyname)
 {
-    if ($delprodbyid === null || $delprodbyname === null) {
-        header('Location:products.php');
-        exit();
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        if ($delprodbyid === null || $delprodbyname === null) {
+            header('Location:products.php');
+            exit();
+        } else {
+            $con = dbaccess();
+            $action = "DELETE FROM products WHERE prodid = " . $delprodbyid . " AND prodname = '" . $delprodbyname . "';";
+            mysqli_real_query($con, $action);
+        };
     } else {
-        $con = dbaccess();
-        $action = "DELETE FROM products WHERE prodid = " . $delprodbyid . " AND prodname = '" . $delprodbyname . "';";
-        mysqli_real_query($con, $action);
-    };
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 };
 function editprod($selprodbyid, $newrealid, $newprodname, $newfullname, $newproddesc, $newdateadded, $newprice, $newclass, $newtype, $newprodimage)
 {
-    $con = dbaccess();
-    $action = "UPDATE products set realid ='" . $newrealid . "', prodname ='" . $newprodname . "', fullname ='" . $newfullname . "', proddesc = '" . $newproddesc . "',dateadded ='" . $newdateadded . "', price ='" . $newprice . "', class = " . $newclass . ", type = " . $newtype . ", image = '" . $newprodimage . "' WHERE prodid = '" . $selprodbyid . "';";
-    echo $action;
-    mysqli_real_query($con, $action);
-};
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        $action = "UPDATE products set realid ='" . $newrealid . "', prodname ='" . $newprodname . "', fullname ='" . $newfullname . "', proddesc = '" . $newproddesc . "',dateadded ='" . $newdateadded . "', price ='" . $newprice . "', class = " . $newclass . ", type = " . $newtype . ", image = '" . $newprodimage . "' WHERE prodid = '" . $selprodbyid . "';";
+        echo $action;
+        mysqli_real_query($con, $action);
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*---------------------
 CLASSES & TYPES (PAGE)
@@ -1820,9 +1866,12 @@ ADD CLASS PAGE
 -------------*/
 function addclasspage()
 {
-    global $localestrings;
-    $con = dbaccess();
-    echo (' <form action="classactions.php" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        $con = dbaccess();
+        echo (' <form action="classactions.php" method="POST">
     <div class="col-10" style="display: inline-flex;">
         <div class="col-4" style="padding-left:2em; padding-top:1em; ">
 
@@ -1835,22 +1884,22 @@ function addclasspage()
             <label for="classivaperc" class="form-label">' . $localestrings['classtaxperc'] . '</label>
             <select class="form-control" name="classivaperc">
                ');
-    $sqlivas = "select * from ivas;";
-    $resultivas = ($con->query($sqlivas));
-    $rowivas = [];
-    if ($resultivas->num_rows > 0) {
-        $rowivas = $resultivas->fetch_all(MYSQLI_ASSOC);
-    };
-    if (!empty($rowivas))
-        foreach ($rowivas as $rowsivas) {
-            echo ("<option value=" . $rowsivas['ivaid'] . ">" . $rowsivas['ivatype'] . " (" . $rowsivas['ivaperc'] . "%)</option>");
-        }
-    else {
-        echo ("
+        $sqlivas = "select * from ivas;";
+        $resultivas = ($con->query($sqlivas));
+        $rowivas = [];
+        if ($resultivas->num_rows > 0) {
+            $rowivas = $resultivas->fetch_all(MYSQLI_ASSOC);
+        };
+        if (!empty($rowivas))
+            foreach ($rowivas as $rowsivas) {
+                echo ("<option value=" . $rowsivas['ivaid'] . ">" . $rowsivas['ivatype'] . " (" . $rowsivas['ivaperc'] . "%)</option>");
+            }
+        else {
+            echo ("
 <option disabled>" . $localestrings['noivatypes'] . "</option>
 <option disabled>" . $localestrings['add1ormore'] . "</option>");
-    }
-    echo ('            </select>
+        }
+        echo ('            </select>
         </div>
     </div>
     <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
@@ -1867,20 +1916,28 @@ function addclasspage()
         <button style="width:20%;" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['class'] . '</button>
     </div>
 </form>');
-};
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*----------------
 DELETE CLASS PAGE
 ----------------*/
 function delclasspage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM classlist')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo '<p>' . $localestrings['noclass'] . $localestrings['delany'] . '. ' . $localestrings['noclass2'] . '</p></div>';
-    } else {
-        echo ('<form action="classactions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM classlist')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo '<p>' . $localestrings['noclass'] . $localestrings['delany'] . '. ' . $localestrings['noclass2'] . '</p></div>';
+        } else {
+            echo ('<form action="classactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="delclassbyid" class="form-label">' . $localestrings['classident'] . '</label>
@@ -1906,21 +1963,29 @@ function delclasspage()
       </div>
       </div>
     </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*--------------
 EDIT CLASS PAGE
 --------------*/
 function editclasspage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM classlist')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo '<p>' . $localestrings['noclass'] . $localestrings['editany'] . '. ' . $localestrings['noclass2'] . '</p></div>';
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM classlist')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo '<p>' . $localestrings['noclass'] . $localestrings['editany'] . '. ' . $localestrings['noclass2'] . '</p></div>';
+        } else {
+            echo ('
         <form action="classactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
@@ -1935,23 +2000,23 @@ function editclasspage()
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
         <label for="classivaperc" class="form-label">' . $localestrings['classtaxperc'] . '</label>
     <select class="form-control" name="classivaperc">');
-        $sqlivas = 'select * from ivas;';
-        $resultivas = ($con->query($sqlivas));
-        $rowivas = [];
-        if ($resultivas->num_rows > 0) {
-            $rowivas = $resultivas->fetch_all(MYSQLI_ASSOC);
-        };
-        if (!empty($rowivas))
-            foreach ($rowivas as $rowsivas) {
+            $sqlivas = 'select * from ivas;';
+            $resultivas = ($con->query($sqlivas));
+            $rowivas = [];
+            if ($resultivas->num_rows > 0) {
+                $rowivas = $resultivas->fetch_all(MYSQLI_ASSOC);
+            };
+            if (!empty($rowivas))
+                foreach ($rowivas as $rowsivas) {
 
-                echo ('<option value=' . $rowsivas['ivaid'] . '>' . $rowsivas['ivatype'] . ' (' . $rowsivas['ivaperc'] . '%)</option>');
-            }
-        else {
-            echo ("
+                    echo ('<option value=' . $rowsivas['ivaid'] . '>' . $rowsivas['ivatype'] . ' (' . $rowsivas['ivaperc'] . '%)</option>');
+                }
+            else {
+                echo ("
     <option disabled>" . $localestrings['noivatypes'] . "</option>
     <option disabled>" . $localestrings['add1ormore'] . '</option>');
-        }
-        echo ('</select>
+            }
+            echo ('</select>
         </div>
         </div>
         <div class="col-10" style="display:inline-flex; padding-left:2em;">
@@ -1970,17 +2035,25 @@ function editclasspage()
       </div>
       </div>
         </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*------------
 ADD TYPE PAGE
 ------------*/
 function addtypepage()
 {
-    global $localestrings;
-    $con = dbaccess();
-    echo ('<form action="typeactions.php" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        $con = dbaccess();
+        echo ('<form action="typeactions.php" method="POST">
     <div class="col-10">
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
 
@@ -2004,20 +2077,28 @@ function addtypepage()
         </div>
     </div>
 </form>');
-};
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*---------------
 DELETE TYPE PAGE
 ---------------*/
 function deltypepage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM typelist')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo '<p>' . $localestrings['notype'] . $localestrings['delany'] . '. ' . $localestrings['notype2'] . '</p></div>';
-    } else {
-        echo ('<form action="typeactions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM typelist')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo '<p>' . $localestrings['notype'] . $localestrings['delany'] . '. ' . $localestrings['notype2'] . '</p></div>';
+        } else {
+            echo ('<form action="typeactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="deltypebyid" class="form-label">' . $localestrings['intid'] . '</label>
@@ -2040,21 +2121,29 @@ function deltypepage()
       <div class="col-12" style="display:inline-flex; padding-left:2em; padding-top:1em;">
         <button style="width:20%" class="btn btn-primary" type="submit">' . $localestrings['delany'] . ' ' . $localestrings['type'] . '</button></div>
     </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*-------------
 EDIT TYPE PAGE
 -------------*/
 function edittypepage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM typelist')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['notype'] . $localestrings['editany'] . '.' . $localestrings['notype2'] . '</p></div>');
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM typelist')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['notype'] . $localestrings['editany'] . '.' . $localestrings['notype2'] . '</p></div>');
+        } else {
+            echo ('
         <form action="typeactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
@@ -2082,8 +2171,13 @@ function edittypepage()
       </div>
       </div>
         </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*-------------------------------------
 INVOICE CREATION / UPDATING / DELETION
@@ -2144,81 +2238,129 @@ CLASS ACTIONS (ADD|DELETE|EDIT)
 ------------------------------*/
 function addclass($classname, $classivaperc)
 {
-    $con = dbaccess();
-    $action = "INSERT INTO classlist VALUES ('','" . $classname . "','" . $classivaperc . "');";
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
-};
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        $action = "INSERT INTO classlist VALUES ('','" . $classname . "','" . $classivaperc . "');";
+        mysqli_real_query($con, $action);
+        header('Location:classtypes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 function delclass($id, $name)
 {
-    $con = dbaccess();
-    if (isset($id) && isset($name)) {
-        $action = 'DELETE FROM classlist WHERE classid = ' . $id . " AND classname = '" . $name . "';";
-    };
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($id) && isset($name)) {
+            $action = 'DELETE FROM classlist WHERE classid = ' . $id . " AND classname = '" . $name . "';";
+        };
+        mysqli_real_query($con, $action);
+        header('Location:classtypes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 function editclass($selclassbyid, $classname, $classivaperc)
 {
-    $con = dbaccess();
-    if (!isset($classname)) {
-        $newclassname = mysqli_fetch_array(mysqli_query($con, 'SELECT classname from classlist WHERE classid = ' . $selclassbyid . ';'))[0];
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($classname)) {
+            $newclassname = mysqli_fetch_array(mysqli_query($con, 'SELECT classname from classlist WHERE classid = ' . $selclassbyid . ';'))[0];
+        } else {
+            $newclassname = $classname;
+        }
+        if (!isset($classivaperc)) {
+            $newclassivaperc = mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperclass from classlist WHERE classid = ' . $selclassbyid . ';'))[0];
+        } else {
+            $newclassivaperc = $classivaperc;
+        };
+        $action = "UPDATE classlist set classname ='" . $newclassname . "', ivaperclass ='" . $newclassivaperc . "' WHERE classid = " . $selclassbyid . ';';
+        mysqli_real_query($con, $action);
+        header('Location:classtypes.php');
     } else {
-        $newclassname = $classname;
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-    if (!isset($classivaperc)) {
-        $newclassivaperc = mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperclass from classlist WHERE classid = ' . $selclassbyid . ';'))[0];
-    } else {
-        $newclassivaperc = $classivaperc;
-    };
-    $action = "UPDATE classlist set classname ='" . $newclassname . "', ivaperclass ='" . $newclassivaperc . "' WHERE classid = " . $selclassbyid . ';';
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
-};
+}
 
 /*------------------------------
     TYPES ACTIONS (ADD|DELETE|EDIT)
     ------------------------------*/
 function addtype($typename)
 {
-    $con = dbaccess();
-    if (isset($typename)) {
-        $action = "INSERT INTO typelist VALUES ('','" . $typename . "')";
-    } else {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($typename)) {
+            $action = "INSERT INTO typelist VALUES ('','" . $typename . "')";
+        } else {
+            header('Location:classtypes.php');
+        };
+        mysqli_real_query($con, $action);
         header('Location:classtypes.php');
-    };
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function deltype($deltypebyid, $deltypebyname)
 {
-    $con = dbaccess();
-    if (isset($deltypebyid) && isset($deltypebyname)) {
-        $action = 'DELETE FROM typelist WHERE typeid = ' . $deltypebyid . " AND typename = '" . $deltypebyname . "';";
-    } else {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($deltypebyid) && isset($deltypebyname)) {
+            $action = 'DELETE FROM typelist WHERE typeid = ' . $deltypebyid . " AND typename = '" . $deltypebyname . "';";
+        } else {
+            header('Location:classtypes.php');
+        }
+        mysqli_real_query($con, $action);
         header('Location:classtypes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
-};
+}
 
 function edittype($seltypebyid, $newtypename)
 {
-    $con = dbaccess();
-    if (isset($seltypebyid)) {
-        if ($_POST['newtypename'] === '') {
-            $typename = mysqli_fetch_array(mysqli_query($con, 'SELECT typename from typelist WHERE typeid = ' . $_POST['seltypebyid'] . ';'))[0];
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($seltypebyid)) {
+            if ($_POST['newtypename'] === '') {
+                $typename = mysqli_fetch_array(mysqli_query($con, 'SELECT typename from typelist WHERE typeid = ' . $_POST['seltypebyid'] . ';'))[0];
+            } else {
+                $typename = $newtypename;
+            };
+            $action = "UPDATE typelist set typename ='" . $typename . "' WHERE typeid = " . $seltypebyid . ';';
         } else {
-            $typename = $newtypename;
-        };
-        $action = "UPDATE typelist set typename ='" . $typename . "' WHERE typeid = " . $seltypebyid . ';';
-    } else {
+            header('Location:classtypes.php');
+        }
+        mysqli_real_query($con, $action);
         header('Location:classtypes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-    mysqli_real_query($con, $action);
-    header('Location:classtypes.php');
 }
 
 /*---------
@@ -2352,8 +2494,11 @@ TAXES ACTIONS PAGES
 
 function addtaxpage()
 {
-    global $localestrings;
-    echo ('<form action="taxactions.php" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        echo ('<form action="taxactions.php" method="POST">
     <div class="col-10" style=" display:inline-flex;">
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
             <label for="taxname" class="form-label">' . $localestrings['taxname'] . '</label>
@@ -2380,16 +2525,24 @@ function addtaxpage()
         <button style="width:20%;" class="btn btn-primary" type="submit">' . $localestrings['addany'] . " " . $localestrings['tax'] . '</button>
     </div>
 </form>');
-};
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 function deltaxpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
-    } else {
-        echo ('<form action="taxactions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
+        } else {
+            echo ('<form action="taxactions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="deltaxbyid" class="form-label">' . $localestrings['inttaxid'] . '</label>
@@ -2415,17 +2568,25 @@ function deltaxpage()
       </div>
       </div>
     </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 function edittaxpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['notaxestodel'] . '</p></div>');
+        } else {
+            echo ('
         <form action="taxactions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
@@ -2457,8 +2618,13 @@ function edittaxpage()
       </div>
       </div>
         </form>');
-    };
-};
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*------------------------------
 TAXES ACTIONS (ADD|DELETE|EDIT)
@@ -2466,44 +2632,68 @@ TAXES ACTIONS (ADD|DELETE|EDIT)
 
 function addtax($taxname, $taxpercent)
 {
-    $con = dbaccess();
-    if (!isset($taxname) || !isset($taxpercent)) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($taxname) || !isset($taxpercent)) {
+            header('Location:taxes.php');
+        } else {
+            $action = "INSERT INTO ivas VALUES ('','" . $taxname . "'," . $taxpercent . ');';
+        };
+        mysqli_real_query($con, $action);
         header('Location:taxes.php');
     } else {
-        $action = "INSERT INTO ivas VALUES ('','" . $taxname . "'," . $taxpercent . ');';
-    };
-    mysqli_real_query($con, $action);
-    header('Location:taxes.php');
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function deltax($deltaxbyid, $deltaxbyname)
 {
-    $con = dbaccess();
-    if (!isset($deltaxbyid) || !isset($deltaxbyname)) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($deltaxbyid) || !isset($deltaxbyname)) {
+            header('Location:taxes.php');
+        } else {
+            $action = 'DELETE FROM ivas WHERE ivaid = ' . $deltaxbyid . " AND ivatype = '" . $deltaxbyname . "';";
+        };
+        mysqli_real_query($con, $action);
         header('Location:taxes.php');
     } else {
-        $action = 'DELETE FROM ivas WHERE ivaid = ' . $deltaxbyid . " AND ivatype = '" . $deltaxbyname . "';";
-    };
-    mysqli_real_query($con, $action);
-    header('Location:taxes.php');
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function edittax($seltaxbyid, $newtaxname, $newtaxpercent)
 {
-    $con = dbaccess();
-    if (isset($seltaxbyid)) {
-        if (!isset($newtaxname)) {
-            $newtaxname = mysqli_fetch_array(mysqli_query($con, 'SELECT ivatype from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
-        } else {
-            $newtaxname = $_POST['newtaxname'];
-        }
-        if (!isset($newtaxpercent)) {
-            $newtaxpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
-        } else {
-            $newtaxpercent = $_POST['newtaxpercent'];
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($seltaxbyid)) {
+            if (!isset($newtaxname)) {
+                $newtaxname = mysqli_fetch_array(mysqli_query($con, 'SELECT ivatype from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
+            } else {
+                $newtaxname = $_POST['newtaxname'];
+            }
+            if (!isset($newtaxpercent)) {
+                $newtaxpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc from ivas WHERE ivaid = ' . $seltaxbyid . ';'))[0];
+            } else {
+                $newtaxpercent = $_POST['newtaxpercent'];
+            };
+            $action = "UPDATE ivas set ivatype ='" . $newtaxname . "', ivaperc = " . $newtaxpercent . ' WHERE ivaid = ' . $seltaxbyid . ';';
+            mysqli_real_query($con, $action);
         };
-        $action = "UPDATE ivas set ivatype ='" . $newtaxname . "', ivaperc = " . $newtaxpercent . ' WHERE ivaid = ' . $seltaxbyid . ';';
-        mysqli_real_query($con, $action);
-    };
-    header('Location:taxes.php');
+        header('Location:taxes.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*---------------------
@@ -2639,8 +2829,11 @@ DISCOUNT VOUCHERS ACTIONS PAGES
 ------------------------------*/
 function addvoucherpage()
 {
-    global $localestrings;
-    echo ('<form action="voucheractions.php" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        echo ('<form action="voucheractions.php" method="POST">
     <div class="col-10" style=" display:inline-flex;">
         <div class="col-4" style="padding-left:2em; padding-top:1em;">
             <label for="vouchername" class="form-label">' . $localestrings['vouchcode'] . '</label>
@@ -2673,16 +2866,24 @@ function addvoucherpage()
     </div>
     </div>
 </form>');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function delvoucherpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['novoucherstodel'] . '</p></div>');
-    } else {
-        echo ('<form action="voucheractions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['novoucherstodel'] . '</p></div>');
+        } else {
+            echo ('<form action="voucheractions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="delvoucherbyid" class="form-label">' . $localestrings['intvouchid'] . '</label>
@@ -2708,17 +2909,25 @@ function delvoucherpage()
       </div>
       </div>
     </form>');
-    };
+        }
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function editvoucherpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
-        echo ('<p>' . $localestrings['novoucherstoedit'] . '</p></div>');
-    } else {
-        echo ('
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM discountvouchers')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em; display:inline-flex;'>");
+            echo ('<p>' . $localestrings['novoucherstoedit'] . '</p></div>');
+        } else {
+            echo ('
         <form action="voucheractions.php" method="POST">
         <div class="p-2 col-10" style="display:inline-flex;">
                 <span class="navbar-toggler-icon"></span>
@@ -2760,63 +2969,92 @@ function editvoucherpage()
       </div>
       </div>
         </form>');
-    };
+        }
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 /*-----------------------------------------
 DISCOUNT VOUCHER ACTIONS (ADD|DELETE|EDIT)
 -----------------------------------------*/
 function addvoucher($vouchername, $voucherdiscount, $finaldate)
 {
-    $con = dbaccess();
-    if (!isset($vouchername) || !isset($voucherdiscount) || !isset($finaldate)) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($vouchername) || !isset($voucherdiscount) || !isset($finaldate)) {
+            header('Location:vouchers.php');
+        } else {
+            $action = "INSERT INTO discountvouchers VALUES ('','" . $vouchername . "'," . $voucherdiscount . ",'" . mysqli_fetch_array(mysqli_query($con, 'SELECT date(now());'))[0] . "','" . $finaldate . "')";
+            mysqli_real_query($con, $action);
+        }
         header('Location:vouchers.php');
     } else {
-        $action = "INSERT INTO discountvouchers VALUES ('','" . $vouchername . "'," . $voucherdiscount . ",'" . mysqli_fetch_array(mysqli_query($con, 'SELECT date(now());'))[0] . "','" . $finaldate . "')";
-        mysqli_real_query($con, $action);
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-    header('Location:vouchers.php');
 }
 
 function delvoucher($delvoucherbyid, $delvoucherbyname)
 {
-    $con = dbaccess();
-    if (!isset($delvoucherbyid) || !isset($delvoucherbyname)) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($delvoucherbyid) || !isset($delvoucherbyname)) {
+            header('Location:vouchers.php');
+        } else {
+            $action = 'DELETE FROM discountvouchers WHERE vouchid = ' . $delvoucherbyid . " AND voucher = '" . $delvoucherbyname . "';";
+            mysqli_real_query($con, $action);
+        };
         header('Location:vouchers.php');
     } else {
-        $action = 'DELETE FROM discountvouchers WHERE vouchid = ' . $delvoucherbyid . " AND voucher = '" . $delvoucherbyname . "';";
-        mysqli_real_query($con, $action);
-    };
-    header('Location:vouchers.php');
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 function editvoucher($selvoucherbyid, $newvouchername, $newvoucherpercent, $newcreationdate, $newfinaldate)
 {
-    $con = dbaccess();
-    if (isset($selvoucherbyid)) {
-        if (!isset($newvouchername)) {
-            $vouchername = mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
-        } else {
-            $vouchername = $newvouchername;
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (isset($selvoucherbyid)) {
+            if (!isset($newvouchername)) {
+                $vouchername = mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+            } else {
+                $vouchername = $newvouchername;
+            };
+            if (!isset($newvoucherpercent)) {
+                $voucherpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+            } else {
+                $voucherpercent = $newvoucherpercent;
+            };
+            if (!isset($newcreationdate)) {
+                $creationdate = mysqli_fetch_array(mysqli_query($con, 'SELECT creationdate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+            } else {
+                $creationdate = $newcreationdate;
+            };
+            if (!isset($newfinaldate)) {
+                $finaldate = mysqli_fetch_array(mysqli_query($con, 'SELECT finaldate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
+            } else {
+                $finaldate = $newfinaldate;
+            }
+            $action = "UPDATE discountvouchers set voucher ='" . $vouchername . "', vouchpercent = " . $voucherpercent . ", creationdate = '" . $creationdate . "',finaldate = '" . $finaldate . "' WHERE vouchid = " . $selvoucherbyid . ';';
+            mysqli_real_query($con, $action);
         };
-        if (!isset($newvoucherpercent)) {
-            $voucherpercent = mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
-        } else {
-            $voucherpercent = $newvoucherpercent;
-        };
-        if (!isset($newcreationdate)) {
-            $creationdate = mysqli_fetch_array(mysqli_query($con, 'SELECT creationdate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
-        } else {
-            $creationdate = $newcreationdate;
-        };
-        if (!isset($newfinaldate)) {
-            $finaldate = mysqli_fetch_array(mysqli_query($con, 'SELECT finaldate from discountvouchers WHERE vouchid = ' . $_POST['selvoucherbyid'] . ';'))[0];
-        } else {
-            $finaldate = $newfinaldate;
-        }
-        $action = "UPDATE discountvouchers set voucher ='" . $vouchername . "', vouchpercent = " . $voucherpercent . ", creationdate = '" . $creationdate . "',finaldate = '" . $finaldate . "' WHERE vouchid = " . $selvoucherbyid . ';';
-        mysqli_real_query($con, $action);
-    };
-    header('Location:vouchers.php');
+        header('Location:vouchers.php');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*-----------
@@ -2893,10 +3131,6 @@ function profile()
     <div class='collapse' id='collapseExample'>
     <nav class = 'nav nav-pills p-3' id = 'nav-tab' role = 'tablist'>
     ");
-
-    /*-------------
-USER EDIT PAGE
--------------*/
     edituserpage();
     echo ("
     </nav>
@@ -2905,6 +3139,10 @@ USER EDIT PAGE
     </body>
     </html>");
 }
+
+/*-------------
+USER EDIT PAGE
+-------------*/
 function edituserpage()
 {
     $con = dbaccess();
@@ -2971,10 +3209,13 @@ USERS PAGE FOR ADMINS
 --------------------*/
 function usersadmpage()
 {
-    $con = dbaccess();
-    global $localestrings;
     $administrator = admincheck();
-    echo ("    <!DOCTYPE html>
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        $administrator = admincheck();
+        echo ("    <!DOCTYPE html>
 <html>
 
 <head>
@@ -3001,22 +3242,22 @@ function usersadmpage()
                         </tr>
                     </thead>
                     <tbody class='table-group-divider'>");
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
-        echo ("<tr><td colspan=10>" . $localestrings['msguser1'] . "</td></tr>");
-        echo ("<tr><td colspan=10>" . $localestrings['msguser2'] . "</td></tr>");
-        echo ("<tr><td colspan=10>" . $localestrings['msguser3'] . "</td></tr>");
-    } else {
-        $sql = 'select * from users';
-        $result = ($con->query($sql));
-        $row = [];
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+            echo ("<tr><td colspan=10>" . $localestrings['msguser1'] . "</td></tr>");
+            echo ("<tr><td colspan=10>" . $localestrings['msguser2'] . "</td></tr>");
+            echo ("<tr><td colspan=10>" . $localestrings['msguser3'] . "</td></tr>");
+        } else {
+            $sql = 'select * from users';
+            $result = ($con->query($sql));
+            $row = [];
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row)) {
-        foreach ($row as $rows) {
+        if (!empty($row)) {
+            foreach ($row as $rows) {
 
-            echo ("                    <tr>
+                echo ("                    <tr>
 
                             <td>" . $rows['userid'] . "</td>
                             <td>" . $rows['username'] . "</td>
@@ -3024,10 +3265,10 @@ function usersadmpage()
                             <td>" . '*****' . "</td>
 
                         </tr>");
-        };
-    }
+            };
+        }
 
-    echo (" </tr>
+        echo (" </tr>
                     </tbody>
                     <tfoot>
                     </tfoot>
@@ -3037,8 +3278,8 @@ function usersadmpage()
 
         </div>
     </div>");
-    if ($administrator === true) {
-        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        if ($administrator === true) {
+            echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
         style="width:100%;position:fixed;left:0%;">
         <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;">
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
@@ -3049,31 +3290,39 @@ function usersadmpage()
   <a class="nav-link ml-1 mt-1" id="nav-adduser-tab" data-bs-toggle="tab" href="#nav-adduser" role="tab" aria-controls="nav-adduser" aria-selected="true">' . $localestrings['addany'] . ' ' . $localestrings['user'] . '</a>
   <a class="nav-link ml-1 mt-1" id="nav-deleteuser-tab" data-bs-toggle="tab" href="#nav-deleteuser" role="tab" aria-controls="nav-deleteuser" aria-selected="false">' . $localestrings['delany'] . ' ' . $localestrings['user'] . '</a>
 </nav>');
-    } else {
-        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . "</p>");
-    };
-    echo ("<div class='tab-content' id='nav-tabContent'>
+        } else {
+            echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . "</p>");
+        };
+        echo ("<div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-adduser' role='tabpanel' aria-labelledby='nav-adduser-tab'>");
-    adduserpage();
-    echo ("
+        adduserpage();
+        echo ("
     </div>
     <div class='tab-content' id='nav-tabContent'>
         <div class='bg-white tab-pane fade show' id='nav-deleteuser' role='tabpanel'
             aria-labelledby='nav-deleteuser-tab'>");
-    deluserpage();
-    echo ("
+        deluserpage();
+        echo ("
             </div>
     </div>
 </body>
 </html>");
-};
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 /*-----------------
 USER ACTIONS PAGES
 -----------------*/
 function adduserpage()
 {
-    global $localestrings;
-    echo ('<form action="useractions.php" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        global $localestrings;
+        echo ('<form action="useractions.php" method="POST">
     <div class="col-10">
         <div class="col-4" style="padding-left:2em; padding-top:1em;display:inline-flex;">
             <div class="col-6">
@@ -3108,18 +3357,26 @@ function adduserpage()
     </div>
     </div>
 </form>');
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function deluserpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msgdeluser1'] . '</p>');
-        echo ('<p>' . $localestrings['msgdeluser2'] . '</p>');
-        echo ('<p>' . $localestrings['msgdeluser3'] . '</p></div>');
-    } else {
-        echo ('<form action="useractions.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM users')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msgdeluser1'] . '</p>');
+            echo ('<p>' . $localestrings['msgdeluser2'] . '</p>');
+            echo ('<p>' . $localestrings['msgdeluser3'] . '</p></div>');
+        } else {
+            echo ('<form action="useractions.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="deluserbyid" class="form-label">' . $localestrings['usersuserid'] . '</label>
@@ -3145,7 +3402,12 @@ function deluserpage()
       </div>
       </div>
     </form>');
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*---------------------------------------
@@ -3154,41 +3416,60 @@ EDITING IS RESTRICTED TO THE ACTUAL USER
 ---------------------------------------*/
 function adduser($username, $userrealname, $passwordunenc)
 {
-    $con = dbaccess();
-    if (!isset($username) || !isset($userrealname) || !isset($passwordunenc)) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        if (!isset($username) || !isset($userrealname) || !isset($passwordunenc)) {
+            header('Location:users.php');
+        } else {
+            $passwordenc = hash('sha512', $passwordunenc);
+            $action = "INSERT INTO users VALUES (null,'" . $username . "','" . $userrealname . "','" . $passwordenc . "');";
+        };
+        mysqli_real_query($con, $action);
         header('Location:users.php');
     } else {
-        $passwordenc = hash('sha512', $passwordunenc);
-        $action = "INSERT INTO users VALUES (null,'" . $username . "','" . $userrealname . "','" . $passwordenc . "');";
-    };
-    mysqli_real_query($con, $action);
-    header('Location:users.php');
-};
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 function deluser($deluserbyid, $deluserbyname)
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (!isset($deluserbyid) || !isset($deluserbyname)) {
-        exit($localestrings['cantdeluser']);
-    } elseif ($deluserbyid === mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username LIKE '%admin%';"))[0] || $deluserbyname === mysqli_fetch_array(mysqli_query($con, "SELECT username from users where username LIKE '%admin%';"))[0]) {
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (!isset($deluserbyid) || !isset($deluserbyname)) {
+            exit($localestrings['cantdeluser']);
+        } elseif ($deluserbyid === mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username LIKE '%admin%';"))[0] || $deluserbyname === mysqli_fetch_array(mysqli_query($con, "SELECT username from users where username LIKE '%admin%';"))[0]) {
+            header('Location:users.php');
+        } else {
+            $action = "DELETE FROM users where userid = '" . $deluserbyid . "' and username = '" . $deluserbyname . "';";
+        };
+        mysqli_real_query($con, $action);
         header('Location:users.php');
     } else {
-        $action = "DELETE FROM users where userid = '" . $deluserbyid . "' and username = '" . $deluserbyname . "';";
-    };
-    mysqli_real_query($con, $action);
-    header('Location:users.php');
-};
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*-------------------
 LANGUAGE CHANGE PAGE
 -------------------*/
 function langchangepage()
 {
-    $con = dbaccess();
-    global $localestrings;
     $administrator = admincheck();
-    echo ("<!DOCTYPE html>
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        $administrator = admincheck();
+        echo ("<!DOCTYPE html>
 <html>
 <head>
 <meta charset = 'UTF-8'>
@@ -3209,51 +3490,51 @@ function langchangepage()
 <th>" . $localestrings['textlangid'] . "</th>
 <th>" . $localestrings['country'] . "</th>
 <th>" . $localestrings['tablestorename']
-        . "</th>
+            . "</th>
 <th>" . $localestrings['currency']
-        . "</th>
+            . "</th>
 <th>" . $localestrings['selectedlang']
-        . "</th>
+            . "</th>
 </tr>
 </thead>
 <tbody class = 'table-group-divider'>
 ");
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * from locales order by selected desc;')) === 0) {
-        echo ('<tr><td colspan=10>'.$localestrings['msglocales1'].'</td></tr>');
-    } else {
-        $sql = 'SELECT * from locales ORDER BY selected desc;';
-        $result = ($con->query($sql));
-        $row = [];
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * from locales order by selected desc;')) === 0) {
+            echo ('<tr><td colspan=10>' . $localestrings['msglocales1'] . '</td></tr>');
+        } else {
+            $sql = 'SELECT * from locales ORDER BY selected desc;';
+            $result = ($con->query($sql));
+            $row = [];
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row)) {
-        foreach ($row as $rows) {
+        if (!empty($row)) {
+            foreach ($row as $rows) {
 
-            echo ("
+                echo ("
         <tr>
         <td>" . $rows["localeid"]
-                . "</td>
+                    . "</td>
         <td>" . $rows["localetextid"]
-                . "</td>
+                    . "</td>
         <td>" . $rows["localecountry"]
-                . "</td>
+                    . "</td>
         <td>" . $rows["storename"]
-                . "</td>
+                    . "</td>
         <td>" . $rows["currency"]
-                . "</td>
+                    . "</td>
         <td>");
-            if ($rows['selected'] != NULL) {
-                echo 'Y';
-            } else {
-                echo 'N';
-            }
-            echo ("</td>
+                if ($rows['selected'] != NULL) {
+                    echo 'Y';
+                } else {
+                    echo 'N';
+                }
+                echo ("</td>
         </tr>");
-        };
-    }
-    echo ("
+            };
+        }
+        echo ("
     </tr>
     </tbody>
     <tfoot>
@@ -3264,28 +3545,33 @@ function langchangepage()
 
     </div>
     </div>");
-    if ($administrator === true) {
-        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        if ($administrator === true) {
+            echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
         style="width:100%;position:fixed;left:0%;">
         <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;">
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         <p class="m-0 p-0 display-6">' . $localestrings['language'] . '</p>
         </button></div>
         <div class="collapse" id="collapseExample">');
-        langchange();
-        echo ('
+            langchange();
+            echo ('
         </div>
         </div>
         </div>
     ');
-    } else {
-        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
-    };
+        } else {
+            echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
+        };
 
 
-    echo ("
+        echo ("
     </body>
     </html>");
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*--------------------
@@ -3293,35 +3579,38 @@ LANGUAGE CHANGE QUERY
 --------------------*/
 function langchange()
 {
-    $con = dbaccess();
-    global $localestrings;
     $administrator = admincheck();
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM LOCALES')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
-    } else {
-        echo ('<form action="completelangchange.php" enctype="multipart/form-data" method="POST">
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        $administrator = admincheck();
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM LOCALES')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+        } else {
+            echo ('<form action="completelangchange.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-3">
             <label for="textlangid" class="form-label">' . $localestrings['textlangid'] . '</label>
             <select class="form-select" name="textlangid" id="textlangid" aria-label=' . $localestrings['textlangid'] . '>');
-        $sqllocales = 'select * from locales;';
-        $resultlocales = ($con->query($sqllocales));
-        $rowlocales = [];
-        if ($resultlocales->num_rows > 0) {
-            $rowlocales = $resultlocales->fetch_all(MYSQLI_ASSOC);
-        };
-        if (!empty($rowlocales))
-            foreach ($rowlocales as $rowslocales) {
+            $sqllocales = 'select * from locales;';
+            $resultlocales = ($con->query($sqllocales));
+            $rowlocales = [];
+            if ($resultlocales->num_rows > 0) {
+                $rowlocales = $resultlocales->fetch_all(MYSQLI_ASSOC);
+            };
+            if (!empty($rowlocales))
+                foreach ($rowlocales as $rowslocales) {
 
-                echo ('<option value=' . $rowslocales['localeid'] . '>' . $rowslocales['localetextid'] . '</option>');
-            }
-        else {
-            echo ("
+                    echo ('<option value=' . $rowslocales['localeid'] . '>' . $rowslocales['localetextid'] . '</option>');
+                }
+            else {
+                echo ("
     <option disabled value='0'>" . $localestrings['msglocales1'] . "</option>
     <option disabled>" . $localestrings['msglocales1'] . '</option>');
-        }
-        echo ('</select>
+            }
+            echo ('</select>
           </div>
           </div>
             <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
@@ -3339,7 +3628,12 @@ function langchange()
       </div>
       </div>
     </form>');
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*------------------------
@@ -3347,10 +3641,13 @@ INVOICES INFORMATION PAGE
 ------------------------*/
 function invoicespage()
 {
-    $con = dbaccess();
     $administrator = admincheck();
-    global $localestrings;
-    echo ("
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        $administrator = admincheck();
+        global $localestrings;
+        echo ("
 <!DOCTYPE html>
 <html>
 <head>
@@ -3375,40 +3672,40 @@ function invoicespage()
 <th>" . $localestrings['vouchers'] . "</th>
 <th>" . $localestrings['vouchdateadded'] . "</th>
 <th>" . $localestrings['paidfinalprice']
-        . "</th>
+            . "</th>
 </tr>
 </thead>
 <tbody class = 'table-group-divider'>
 ");
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * from invoices')) === 0) {
-        echo ('<tr><td colspan=10>' . $localestrings['msginvoice1'] . '</td></tr>');
-    } else {
-        $sql = 'SELECT * from invoices';
-        $result = ($con->query($sql));
-        $row = [];
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * from invoices')) === 0) {
+            echo ('<tr><td colspan=10>' . $localestrings['msginvoice1'] . '</td></tr>');
+        } else {
+            $sql = 'SELECT * from invoices';
+            $result = ($con->query($sql));
+            $row = [];
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row)) {
-        foreach ($row as $rows) {
+        if (!empty($row)) {
+            foreach ($row as $rows) {
 
-            echo ('
+                echo ('
         <tr><td>' . $rows['invoiceid'] . '</td>
         ');
-            if (intval(mysqli_fetch_array(mysqli_query($con, "SELECT vouchid from invoicediscount where invoiceid = '" . $rows['invoiceid'] . "';"))[0]) === 0) {
-                echo '<td>' . $localestrings['invoicenodisc'] . '</td>';
-            } else {
-                echo ('<td>' . mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . ' - ' . mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent FROM discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . '(%)</td>');
-            };
-            echo ('
+                if (intval(mysqli_fetch_array(mysqli_query($con, "SELECT vouchid from invoicediscount where invoiceid = '" . $rows['invoiceid'] . "';"))[0]) === 0) {
+                    echo '<td>' . $localestrings['invoicenodisc'] . '</td>';
+                } else {
+                    echo ('<td>' . mysqli_fetch_array(mysqli_query($con, 'SELECT voucher from discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . ' - ' . mysqli_fetch_array(mysqli_query($con, 'SELECT vouchpercent FROM discountvouchers where vouchid = (SELECT vouchid from invoicediscount where invoiceid = "' . $rows['invoiceid'] . '");'))[0] . '(%)</td>');
+                };
+                echo ('
         <td>' . $rows['invoicedate']
-                . '</td>
+                    . '</td>
         <td>' . mysqli_fetch_array(mysqli_query($con, "SELECT sum(checkoutplusiva) from detailinvoice where invoiceid = '" . $rows['invoiceid'] . "';"))[0] . $localestrings['currencies'] . '</td>
         </tr>');
-        };
-    }
-    echo ("
+            };
+        }
+        echo ("
     </tr>
     </tbody>
     <tfoot>
@@ -3416,18 +3713,18 @@ function invoicespage()
     </table>
     </div>
     <caption class = 'sticky-bottom'>" . ('(' . mysqli_fetch_array(mysqli_query($con, 'SELECT count(*) from invoices'))[0] . $localestrings['invoices2show'])
-        . "</caption>
+            . "</caption>
 
     </div>
     </div>");
-    if ($administrator === true) {
-        echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
+        if ($administrator === true) {
+            echo ('<div id="moreactions" class="bg-white border-top bottom sticky sticky-bottom"
         style="width:100%;position:fixed;left:0%;">
         <div class="sticky sticky-bottom" style="bottom:0%;z-index:12500;top:0%;left:0%;display:block;"><button
                 class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample"
                 aria-expanded="false" aria-controls="collapseExample">
                 <h3 class="display-6">' . $localestrings['moreactions']
-            . '</h3>
+                . '</h3>
             </button></div>
         <div class="collapse" id="collapseExample">
   <nav class="nav nav-pills" id="nav-tab" role="tablist">
@@ -3436,36 +3733,41 @@ function invoicespage()
   <a class="nav-link" id="nav-searchinvoicebydaterange-tab" data-bs-toggle="tab" href="#nav-searchinvoicebydaterange" role="tab" aria-controls="nav-searchinvoicebydaterange" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['daterange'] . '</a>
   <a class="nav-link" id="nav-searchinvoicebydiscountvoucher-tab" data-bs-toggle="tab" href="#nav-searchinvoicebydiscountvoucher" role="tab" aria-controls="nav-searchinvoicebydiscountvoucher" aria-selected="false">' . $localestrings['invoicesearch'] . ' ' . $localestrings['vouchers'] . '</a>
 </nav>');
-    } else {
-        echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
-    };
-    echo ("
+        } else {
+            echo ("<p class='m-2 p-2'>" . $localestrings['advuseroptsonlyforadms'] . '</p>');
+        };
+        echo ("
     <div class = 'tab-content' id = 'nav-tabContent'>
     <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebyid' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebyid-tab'>
 ");
-    searchinvoicebyidpage();
-    echo ("
+        searchinvoicebyidpage();
+        echo ("
     </div>
     <div class = 'tab-content' id = 'nav-tabContent'>
     <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydate' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydate-tab'>
     ");
-    searchinvoicedatepage();
-    echo ("
+        searchinvoicedatepage();
+        echo ("
     </div>
     <div class = 'tab-content' id = 'nav-tabContent'>
     <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydaterange' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydaterange-tab'>
     ");
-    searchinvoicedaterangepage();
-    echo ("
+        searchinvoicedaterangepage();
+        echo ("
     </div>
     <div class = 'tab-content' id = 'nav-tabContent'>
     <div class = 'bg-white tab-pane fade show' id = 'nav-searchinvoicebydiscountvoucher' role = 'tabpanel' aria-labelledby = 'nav-searchinvoicebydiscountvoucher-tab'>
     ");
-    searchinvoicebydiscountvoucherpage();
-    echo ("</div>
+        searchinvoicebydiscountvoucherpage();
+        echo ("</div>
     </div>
     </body>
     </html>");
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*------------------------------------------------------------------------------
@@ -3473,13 +3775,16 @@ INVOICE SEARCH PAGES (BY ID, BY DATE ADDED, BY DATE RANGE, BY DISCOUNT VOUCHER)
 ------------------------------------------------------------------------------*/
 function searchinvoicebyidpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
-    } else {
-        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+        } else {
+            echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-2">
             <label for="invoiceid" class="form-label">' . $localestrings['invoiceid'] . '</label>
@@ -3501,17 +3806,25 @@ function searchinvoicebyidpage()
       </div>
       </div>
     </form>');
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 function searchinvoicedatepage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
-    } else {
-        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+        } else {
+            echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-2">
             <label for="selinvoicebydate" class="form-label">' . $localestrings['dateadded'] . '</label>
@@ -3533,17 +3846,25 @@ function searchinvoicedatepage()
       </div>
       </div>
     </form>');
+        }
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
 }
 function searchinvoicedaterangepage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
-    } else {
-        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+        } else {
+            echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
     <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
     <div class="col-2">
     <label for="mindaterange" class="form-label">' . $localestrings['mindaterange'] . '</label>
@@ -3569,39 +3890,47 @@ function searchinvoicedaterangepage()
   </div>
   </div>
 </form>');
+        }
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
 }
 function searchinvoicebydiscountvoucherpage()
 {
-    $con = dbaccess();
-    global $localestrings;
-    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
-        echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
-        echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
-    } else {
-        echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM invoices')) === 0) {
+            echo ("<div class='col-12' style='padding-left:2em; padding-top:1em;'>");
+            echo ('<p>' . $localestrings['msginvoice1'] . '</p>');
+        } else {
+            echo ('<form action="searchresult.php" enctype="multipart/form-data" method="POST">
         <div class="col-12" style="padding-left:2em; padding-top:1em; display:inline-flex;">
             <div class="col-2">
             <label for="invoiceid" class="form-label">' . $localestrings['vouchers'] . '</label>
             <select class="form-select" name="vouchervalue" id="vouchervalue" aria-label=' . $localestrings['selvouchlist'] . '>');
-        $sqlvouchers = 'select * from discountvouchers;';
-        $resultvouchers = ($con->query($sqlvouchers));
-        $rowvouchers = [];
-        if ($resultvouchers->num_rows > 0) {
-            $rowvouchers = $resultvouchers->fetch_all(MYSQLI_ASSOC);
-        };
-        if (!empty($rowvouchers))
-            foreach ($rowvouchers as $rowsvouchers) {
+            $sqlvouchers = 'select * from discountvouchers;';
+            $resultvouchers = ($con->query($sqlvouchers));
+            $rowvouchers = [];
+            if ($resultvouchers->num_rows > 0) {
+                $rowvouchers = $resultvouchers->fetch_all(MYSQLI_ASSOC);
+            };
+            if (!empty($rowvouchers))
+                foreach ($rowvouchers as $rowsvouchers) {
 
-                echo ('<option value=' . $rowsvouchers['vouchid'] . '>' . $rowsvouchers['voucher'] . ' (' . $rowsvouchers['vouchpercent'] . '%)</option>');
-            }
-        else {
-            echo ("
+                    echo ('<option value=' . $rowsvouchers['vouchid'] . '>' . $rowsvouchers['voucher'] . ' (' . $rowsvouchers['vouchpercent'] . '%)</option>');
+                }
+            else {
+                echo ("
     <option disabled value='0'>" . $localestrings['nodiscvouchers'] . "</option>
     <option disabled>" . $localestrings['nodiscvouchers2'] . '</option>');
-        }
-        echo ("<option value='disabled'>" . $localestrings['novoucherapplied'] . '</option>');
-        echo ('</select>
+            }
+            echo ("<option value='disabled'>" . $localestrings['novoucherapplied'] . '</option>');
+            echo ('</select>
           </div>
           </div>
             <div class="col-10 pt-2" style="display:inline-flex; padding-left:2em;">
@@ -3619,7 +3948,12 @@ function searchinvoicebydiscountvoucherpage()
       </div>
       </div>
     </form>');
-    };
+        };
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
 }
 
 /*---------------------------------------------------------------------------------
@@ -3627,49 +3961,82 @@ INVOICE SEARCH FUNCTION (BY ID, BY DATE ADDED, BY DATE RANGE, BY DISCOUNT VOUCHE
 ---------------------------------------------------------------------------------*/
 function searchinvoicebyid($selinvoicebyid)
 {
-    if (isset($selinvoicebyid)) {
-        $invoiceid = $selinvoicebyid;
-        $action = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
-        return $action;
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        if (isset($selinvoicebyid)) {
+            $invoiceid = $selinvoicebyid;
+            $action = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
+            return $action;
+        } else {
+            header('Location:invoicesearch.php');
+        }
     } else {
-        header('Location:invoicesearch.php');
+        header('Location:../manager/webmanager.php');
     }
-};
+}
 function searchinvoicebydate($dateadded)
 {
-    if (isset($dateadded)) {
-        $invoicedate = $dateadded;
-        $action = "SELECT * FROM invoices where invoicedate = '" . $invoicedate . "';";
-        return $action;
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        if (isset($dateadded)) {
+            $invoicedate = $dateadded;
+            $action = "SELECT * FROM invoices where invoicedate = '" . $invoicedate . "';";
+            return $action;
+        } else {
+            header('Location:invoicesearch.php');
+        }
     } else {
-        header('Location:invoicesearch.php');
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-};
+}
 function searchinvoicebyrange($datestart, $dateend)
 {
-    if (isset($datestart) && isset($dateend)) {
-        $invoicedatestart = $datestart;
-        $invoicedateend = $dateend;
-        $action = "SELECT * FROM invoices where invoicedate BETWEEN '" . $invoicedatestart . "' AND '" . $invoicedateend . "';";
-        return $action;
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        if (isset($datestart) && isset($dateend)) {
+            $invoicedatestart = $datestart;
+            $invoicedateend = $dateend;
+            $action = "SELECT * FROM invoices where invoicedate BETWEEN '" . $invoicedatestart . "' AND '" . $invoicedateend . "';";
+            return $action;
+        } else {
+            header('Location:invoicesearch.php');
+        }
     } else {
-        header('Location:invoicesearch.php');
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-};
+}
 function searchinvoicebydiscountvoucher($vouchid)
 {
-    if (isset($vouchid)) {
-        $voucherid = $vouchid;
-        $action = "SELECT * FROM invoices where invoiceid = (SELECT invoiceid from invoicediscount where vouchid = '" . $vouchid . "') ;";
-        return $action;
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        if (isset($vouchid)) {
+            $voucherid = $vouchid;
+            $action = "SELECT * FROM invoices where invoiceid = (SELECT invoiceid from invoicediscount where vouchid = '" . $vouchid . "') ;";
+            return $action;
+        }
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
     }
-};
+}
 
 function search($action)
 {
-    $con = dbaccess();
-    global $localestrings;
-    echo ("
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        echo ("
     <!DOCTYPE html>
 <html>
 <head>
@@ -3691,25 +4058,25 @@ function search($action)
 <th>" . $localestrings['invoiceid'] . "</th>
 <th>" . $localestrings['vouchdateadded'] . "</th>
 <th>" . $localestrings['invoiceuser']
-        . "</th>
+            . "</th>
 <th>" . $localestrings['selinvoice'] . "</th>
 </tr>
 </thead>
 <tbody class = 'table-group-divider'>");
-    if (mysqli_num_rows(mysqli_query($con, $action)) === 0) {
-        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
-    } else {
-        $sql2 = $action;
-        $result2 = ($con->query($sql2));
-        $row2 = [];
-        if ($result2->num_rows > 0) {
-            $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, $action)) === 0) {
+            echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+        } else {
+            $sql2 = $action;
+            $result2 = ($con->query($sql2));
+            $row2 = [];
+            if ($result2->num_rows > 0) {
+                $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row2)) {
-        foreach ($row2 as $rows2) {
+        if (!empty($row2)) {
+            foreach ($row2 as $rows2) {
 
-            echo ("
+                echo ("
             <tr>
 
             <td>" . $rows2['invoiceid'] . "
@@ -3718,9 +4085,9 @@ function search($action)
             <td>" . mysqli_fetch_array(mysqli_query($con, "SELECT realname from users where userid = '" . $rows2['userid'] . "';"))[0] . "</td>
             <td><form action='moreinformationinvoice.php' method ='POST'><button name='invoiceid' type='submit' value='" . $rows2['invoiceid'] . "'>" . $localestrings['moreinformation'] . "</button></td>
             </tr>");
-        };
-    }
-    echo ("
+            };
+        }
+        echo ("
         </tr>
         </tbody>
         <tfoot>
@@ -3733,19 +4100,27 @@ function search($action)
         </body>
         </html>
     ");
-};
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+}
 
 /*---------------------------
 ADVANCED INVOICE INFORMATION
 ---------------------------*/
 function advancedinvoiceinfo($invoiceid)
 {
-    $con = dbaccess();
-    global $localestrings;
-    $sql1 = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
-    $sql2 = "SELECT * FROM detailinvoice where invoiceid = '" . $invoiceid . "';";
-    $sql3 = "SELECT * FROM invoicediscount where invoiceid = '" . $invoiceid . "';";
-    echo ("<!DOCTYPE html>
+    $administrator = admincheck();
+
+    if ($administrator === true) {
+        $con = dbaccess();
+        global $localestrings;
+        $sql1 = "SELECT * FROM invoices where invoiceid = '" . $invoiceid . "';";
+        $sql2 = "SELECT * FROM detailinvoice where invoiceid = '" . $invoiceid . "';";
+        $sql3 = "SELECT * FROM invoicediscount where invoiceid = '" . $invoiceid . "';";
+        echo ("<!DOCTYPE html>
     <html>
     <head>
     <meta charset = 'UTF-8'>
@@ -3765,39 +4140,39 @@ function advancedinvoiceinfo($invoiceid)
 <th>" . $localestrings['invoiceid'] . "</th>
 <th>" . $localestrings['vouchdateadded'] . "</th>
 <th>" . $localestrings['invoiceuser']
-        . "</th>
+            . "</th>
 </tr>
 </thead>
 <tbody class = 'table-group-divider'>");
-    if (mysqli_num_rows(mysqli_query($con, $sql1)) === 0) {
-        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
-    } else {
-        $result1 = ($con->query($sql1));
-        $row1 = [];
-        if ($result1->num_rows > 0) {
-            $row1 = $result1->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, $sql1)) === 0) {
+            echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+        } else {
+            $result1 = ($con->query($sql1));
+            $row1 = [];
+            if ($result1->num_rows > 0) {
+                $row1 = $result1->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row1)) {
-        foreach ($row1 as $rows1) {
+        if (!empty($row1)) {
+            foreach ($row1 as $rows1) {
 
-            echo ("
+                echo ("
             <tr>
 
             <td>" . $rows1['invoiceid'] . "</td>
             <td>" . $rows1['invoicedate'] . "</td>
             <td>" . mysqli_fetch_array(mysqli_query($con, "SELECT realname from users where userid = '" . $rows1['userid'] . "';"))[0] . "</td>
             </tr>");
-        };
-    }
-    echo ("
+            };
+        }
+        echo ("
         </tr>
         </tbody>
         <tfoot>
         <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql1)) . $localestrings['details2showfrominvoices']) . "
         </tfoot>
         </table>");
-    echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+        echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
         <thead>
         <tr style = 'position: sticky; top:0;'>
         <th>" . $localestrings['invoiceid'] . "</th>
@@ -3810,19 +4185,19 @@ function advancedinvoiceinfo($invoiceid)
         </tr>
         </thead>
         <tbody class = 'table-group-divider'>");
-    if (mysqli_num_rows(mysqli_query($con, $sql2)) === 0) {
-        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
-    } else {
-        $result2 = ($con->query($sql2));
-        $row2 = [];
-        if ($result2->num_rows > 0) {
-            $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+        if (mysqli_num_rows(mysqli_query($con, $sql2)) === 0) {
+            echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+        } else {
+            $result2 = ($con->query($sql2));
+            $row2 = [];
+            if ($result2->num_rows > 0) {
+                $row2 = $result2->fetch_all(MYSQLI_ASSOC);
+            };
         };
-    };
-    if (!empty($row2)) {
-        foreach ($row2 as $rows2) {
+        if (!empty($row2)) {
+            foreach ($row2 as $rows2) {
 
-            echo ("
+                echo ("
                     <tr>
         
                     <td>" . $rows2['invoiceid'] . "</td>
@@ -3831,19 +4206,19 @@ function advancedinvoiceinfo($invoiceid)
                     <td>" . $rows2['quantity'] . "</td>
                     <td>" . $rows2['checkout'] . "</td>
                     <td>" . $rows2['checkoutplusiva'] . "</td>
-                    <td>".mysqli_fetch_array(mysqli_query($con,"SELECT sum(checkoutplusiva) from detailinvoice where invoiceid = '".$rows1['invoiceid']."';"))[0]."</td>
+                    <td>" . mysqli_fetch_array(mysqli_query($con, "SELECT sum(checkoutplusiva) from detailinvoice where invoiceid = '" . $rows1['invoiceid'] . "';"))[0] . "</td>
 
                     </tr>");
-        };
-    }
-    echo ("
+            };
+        }
+        echo ("
                 </tr>
                 </tbody>
                 <tfoot>
                 <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql2)) . $localestrings['details2showfrominvoices']) . "
                 </tfoot>
                 </table>");
-    echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
+        echo ("<table class = 'table table-striped table-hover table-borderless table-primary align-middle'>
                         <thead>
                         <tr style = 'position: sticky; top:0;'>
                         <th>" . $localestrings['invoiceid'] . "</th>
@@ -3852,34 +4227,39 @@ function advancedinvoiceinfo($invoiceid)
                         </tr>
                         </thead>
                         <tbody class = 'table-group-divider'>");
-    if (mysqli_num_rows(mysqli_query($con, $sql3)) === 0) {
-        echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
-    } else {
-        $result3 = ($con->query($sql3));
-        $row3 = [];
-        if ($result3->num_rows > 0) {
-            $row3 = $result3->fetch_all(MYSQLI_ASSOC);
-        };
-    };
-    if (!empty($row3)) {
-        foreach ($row3 as $rows3) {
-
-            echo ("
-                                    <tr>");
-            if ($rows3['invoiceid'] === 0) {
-            } else {
-                echo ("<td>" . $rows3['invoiceid'] . "</td>
-                                    <td>" . $rows3['vouchid'] . "</td>");
+        if (mysqli_num_rows(mysqli_query($con, $sql3)) === 0) {
+            echo ("<tr><td colspan=10>" . $localestrings['msginvoice1'] . "</td></tr>");
+        } else {
+            $result3 = ($con->query($sql3));
+            $row3 = [];
+            if ($result3->num_rows > 0) {
+                $row3 = $result3->fetch_all(MYSQLI_ASSOC);
             };
-            echo ("<td>" . mysqli_fetch_array(mysqli_query($con, "SELECT voucher from discountvouchers where vouchid = '" . $rows3['vouchid'] . "';"))[0] . " - ".mysqli_fetch_array(mysqli_query($con,"SELECT vouchpercent from discountvouchers where vouchid = '".$rows3['vouchid']."';"))[0]."(%)</td>
-                                    </tr>");
         };
-    }
-    echo ("
+        if (!empty($row3)) {
+            foreach ($row3 as $rows3) {
+
+                echo ("
+                                    <tr>");
+                if ($rows3['invoiceid'] === 0) {
+                } else {
+                    echo ("<td>" . $rows3['invoiceid'] . "</td>
+                                    <td>" . $rows3['vouchid'] . "</td>");
+                };
+                echo ("<td>" . mysqli_fetch_array(mysqli_query($con, "SELECT voucher from discountvouchers where vouchid = '" . $rows3['vouchid'] . "';"))[0] . " - " . mysqli_fetch_array(mysqli_query($con, "SELECT vouchpercent from discountvouchers where vouchid = '" . $rows3['vouchid'] . "';"))[0] . "(%)</td>
+                                    </tr>");
+            };
+        }
+        echo ("
                                 </tr>
                                 </tbody>
                                 <tfoot>
                                 <caption class = 'sticky-bottom'>" . ('(' . mysqli_num_rows(mysqli_query($con, $sql3)) . $localestrings['vouchersapplied']) . "
                                 </tfoot>
                                 </table>");
-}
+    } else {
+        global $localestrings;
+        echo ($localestrings['noadmnoaccess']);
+        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+    }
+};
