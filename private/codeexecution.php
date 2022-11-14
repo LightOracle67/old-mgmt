@@ -77,7 +77,7 @@ function responsive()
     <style>
     @media screen{
         *{
-        font-size:1.1vmax;
+        font-size:0.98vmax;
     }
 
 }
@@ -357,7 +357,7 @@ function navtop($localestrings)
     <nav id="navtop" class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top"
         style="z-index:10000; width: 100%;">
         <div
-            style="margin:0 auto;display: flex;justify-content: space-around;flex-wrap: wrap;flex-direction: column;align-content: stretch;align-items: center; width:95%;">
+            style="margin:0 auto;display: flex;justify-content: space-around;flex-wrap: wrap;align-content: stretch;align-items: center; width:95%;">
             <a class="navbar-brand" id="menubrand" href="#">
                 ' . $localestrings['storename'] . ' - ' . $localestrings['adewmplus'] . '
             </a>
@@ -530,15 +530,8 @@ function productsbyclass()
 }
 
 /*---------------------------- WEBMANAGER - INVOICE STEP 1 ---------------------------- */
-function actualinvoiceid()
-{
-    global $localestrings;
-    $con = dbaccess();
-    /*HAY QUE DARLE UN PENSAMIENTO ¡¡¡PRIORIDAD!!!*/
-    /*¿INNER JOIN INVOICES -- ACTUALINVOICE --> (INVOICEID)?*/
-}
 
-function invoice()
+function invoice($actualinvoiceid)
 {
     global $localestrings;
     $con = dbaccess();
@@ -548,7 +541,6 @@ function invoice()
             'SELECT current_timestamp();'
         )
     )[0];
-    $actualinvoiceid = actualinvoiceid();
     echo ('<style>.checkout>*{
         font-size:0.9vmax;
     };</style>
@@ -558,12 +550,11 @@ function invoice()
             class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample"
             aria-expanded="false" aria-controls="collapseExample">
             <p class="m-0 p-0 display-6">'
-        . $localestrings['invoicesdetail'] . '</p>
+        . $localestrings['invoicenumber'] . $actualinvoiceid .'</p>
         </button></div>
     <div class="collapse" id="collapseExample">
     <div class="table-responsive">
-        <h3 class="m-2 p-0" >' . $localestrings['invoicenumber'] . $actualinvoiceid . ' - ' .
-        $timestamp . '</h3>
+        <h3 class="m-2 p-0" >'. $localestrings['datetime'] . $timestamp . '</h3>
         <h5 class="m-2 p-1" >' . $localestrings['employee'] .
         mysqli_fetch_array(
             mysqli_Query(
@@ -572,34 +563,26 @@ function invoice()
                     $localestrings['sessionname'] . "';"
             )
         )[0] . '</h5>
-            <input type="hidden" value="' . $actualinvoiceid . '" name="actualinvoiceid"></input>
             
                 <table class="table table-primary">
                     <thead>
                         <tr">
-                            <th scope="col"><b >' . $localestrings['tableprodname'] . '</b></th>
-                            <th scope="col"><b >' . $localestrings['prodprice'] . '</b></th>
-                            <th scope="col"><b >' . $localestrings['quantity'] . '</b></th>
-                            <th scope="col"><b >' . $localestrings['checkout'] . '</b></th>
-                            <th scope="col"><b >' . $localestrings['checkoutiva'] . '</b></th>
+                            <th scope="col"><b>' . $localestrings['tableprodname'] . '</b></th>
+                            <th scope="col"><b>' . $localestrings['prodprice'] . '</b></th>
+                            <th scope="col"><b>' . $localestrings['quantity'] . '</b></th>
+                            <th scope="col"><b>' . $localestrings['checkout'] . '</b></th>
+                            <th scope="col"><b>' . $localestrings['checkoutiva'] . '</b></th>
                             </tr>
                     </thead>
                     <tbody>
                         <tr>');
-    if (
-        mysqli_num_rows(
-            mysqli_query(
-                $con,
-                'SELECT * FROM actualinvoice where invoiceid = "' . $actualinvoiceid . '";'
-            )
-        ) === 0
-    ) {
+    if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM detailinvoice where invoiceid = "' . $actualinvoiceid . '";')) === 0) {
         echo ("<th scope='row' colspan=5");
         echo ('<p >' . $localestrings['noprodsininvoice'] . '</p>'
         );
         echo ('</th>');
     } else {
-        $sqlinvoice = 'select * from actualinvoice where invoiceid = "' . $actualinvoiceid . '";';
+        $sqlinvoice = 'select * from detailinvoice where invoiceid = "' . $actualinvoiceid . '";';
         $resultinvoice = ($con->query($sqlinvoice));
         $rowinvoice = [];
         if ($resultinvoice->num_rows > 0) {
@@ -650,29 +633,39 @@ function invoice()
     if (!isset($actualinvoiceid)) {
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
-    } elseif (mysqli_num_rows(mysqli_query($con, 'SELECT checkout FROM actualinvoice where invoiceid = "' . $actualinvoiceid . '";')) === 0) {
+    } elseif (mysqli_num_rows(mysqli_query($con, 'SELECT checkout FROM detailinvoice where invoiceid = "' . $actualinvoiceid . '";')) === 0) {
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
     } else {
-        $totalcheckout = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUT) from actualinvoice where invoiceid = "' . $actualinvoiceid . '";'))[0];
-        $totalcheckoutplusiva = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUTPLUSIVA) from actualinvoice where invoiceid = "' . $actualinvoiceid . '";'))[0];
+        $totalcheckout = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUT) from detailinvoice where invoiceid = "' . $actualinvoiceid . '";'))[0];
+        $totalcheckoutplusiva = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUTPLUSIVA) from detailinvoice where invoiceid = "' . $actualinvoiceid . '";'))[0];
         echo ("<th scope='col'><b>" . $totalcheckout . $localestrings['currencies'] . "</b></th>");
         echo ("<th scope='col'><b>" . $totalcheckoutplusiva . $localestrings['currencies'] . "<b></th>");
     };
-    echo ('<tr>');
-    echo ('<td scope="col"><button class="btn btn-primary" type="submit" name="delinv">' . $localestrings['deleteinv'] . '</button></td></form>');
-    echo ('<td scope="col" colspan="3"></td>
-                            <td scope="col">');
-
-    echo ('<form action="invoicecomplete.php" method="POST">
-                                    <button type="submit" class="btn btn-primary" name="subinv">' .
-        $localestrings['submitinv'] .
-        '</button>');
-
-    echo ('                                <input type="hidden" value="' . $actualinvoiceid . '"
-                                        name="actualinvoiceid"></input>
-                                    <input type="hidden" value="' . $localestrings['userid'] . '" name="userid"></input>
-                                    <input type="hidden" value="' . $timestamp . '" name="timestamp"></input>
+    echo ('</tr>
+    <tr>');
+    echo ('<td scope="col"><form action="invoiceupdater.php" method="POST"><input type="hidden" value="' . $actualinvoiceid . '" name="actualinvoiceid"><button class="btn btn-primary" type="submit" name="delinv">' . $localestrings['deleteinv'] . '</button></form></td>');
+    echo ('<td scope="col"><form action="invoicecomplete.php" method="POST"><input type="hidden" value="' . $actualinvoiceid . '" name="actualinvoiceid"><input type="hidden" value="' . $actualinvoiceid . '" name="actualinvoiceid"></input>
+    <input type="hidden" value="' . $localestrings['userid'] . '" name="userid"></input>
+    <input type="hidden" value="' . $timestamp . '" name="timestamp"></input></input><button type="submit" class="btn btn-primary" name="subinv">' . $localestrings['submitinv'] . '</button></form></td>');
+    echo ('<td scope="col"></td>');
+    echo ('<td scope="col"><form action="webmanager.php" method="POST"><input type="hidden" value="' . $actualinvoiceid . '" name="actualinvoiceid"></input><select name="actualinvoiceid">');
+    $sqlinvoices = 'select invoiceid from invoices where invoicedate between (CURRENT_DATE)-1 and (CURRENT_DATE)+1 and userid = "' . mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username = '" . $_SESSION['name'] . "';"))[0] . '";';
+    $resultinvoices = ($con->query($sqlinvoices));
+    $rowinvoice = [];
+    if ($resultinvoices->num_rows > 0) {
+        $rowinvoice = $resultinvoices->fetch_all(MYSQLI_ASSOC);
+    };
+    if (!empty($rowinvoice)) {
+        foreach ($rowinvoice as $rowsinvoice) {
+            echo ("<option value=" . $rowsinvoice['invoiceid'] . ">INV " . $rowsinvoice['invoiceid'] . "</option>");
+        }
+    } else {
+        echo ("<option disabled value='NULL'>" . $localestrings['noselinv'] . "</option>");
+    }
+    echo ('</select><form action="invoiceupdater.php" name="delinv" method="POST"><button class="btn btn-primary" type="submit" name="changeinvoice">' . $localestrings['changeinvoice'] . '</button></form></td>');
+    echo('<td><form action="webmanager.php" name="newinvoice" method="POST"><button class="btn btn-warning" type="submit" name="newinvoice" id="newinvoice">'.$localestrings['newinvoice'].'</button></form></td></tr>');
+    echo ('                                
                                       </form>
                     </tfoot>
                 </table>
@@ -682,6 +675,16 @@ function invoice()
 </div>
 </div>');
 };
+
+/*------------------------------
+ADD NEW INVOICE FOR ACTUAL USER
+------------------------------*/
+function newinvoice(){
+    $con = dbaccess();
+    $userid = mysqli_fetch_Array(mysqli_query($con,"SELECT userid from users where username = '".$_SESSION['name']."';"))[0];
+    $lastinvoice = mysqli_fetch_Array(mysqli_query($con,"SELECT max(invoiceid) from invoices where userid = (SELECT userid from users where username = '".$_SESSION['name']."');"))[0]+1;
+    mysqli_real_query($con,"INSERT INTO invoices VALUES ('".$lastinvoice."',CURRENT_TIMESTAMP,'".$userid."');");
+}
 /* -----------------------------
 INVOICE - INVOICE STEP 2
 ----------------------------- */
@@ -727,7 +730,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
         mysqli_num_rows(
             mysqli_query(
                 $con,
-                'SELECT * FROM actualinvoice where invoiceid = "' . $invoiceid . '";'
+                'SELECT * FROM detailinvoice where invoiceid = "' . $invoiceid . '";'
             )
         ) === 0
     ) {
@@ -735,7 +738,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
         echo $localestrings['noprodsininvoice'];
         echo ("</th>");
     } else {
-        $sqlinvoice = 'select * from actualinvoice where invoiceid
+        $sqlinvoice = 'select * from detailinvoice where invoiceid
                             = "' . $invoiceid . '";';
         $resultinvoice = ($con->query($sqlinvoice));
         $rowinvoice = [];
@@ -745,8 +748,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
     };
     if (!empty($rowinvoice)) {
         foreach ($rowinvoice as $rowsinvoice) {
-            echo ('
-                        <tr>');
+            echo ('<tr>');
             echo ("<td scope='col'>");
             echo ('' . mysqli_fetch_array(
                 mysqli_query(
@@ -793,7 +795,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
         mysqli_num_rows(
             mysqli_query(
                 $con,
-                'SELECT checkout FROM actualinvoice
+                'SELECT checkout FROM detailinvoice
                             where invoiceid = "' . $invoiceid . '";'
             )
         ) === 0
@@ -806,7 +808,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
             mysqli_query(
                 $con,
                 'SELECT SUM(CHECKOUT) from
-                                actualinvoice where invoiceid = "' . $invoiceid . '";'
+                                detailinvoice where invoiceid = "' . $invoiceid . '";'
             )
         )[0];
         echo ('<b>' . $totalcheckout . $localestrings['currencies'] . '<b>');
@@ -816,7 +818,7 @@ function firstinvoicecheck($invoiceid, $timestamp)
             mysqli_query(
                 $con,
                 'SELECT
-                                SUM(CHECKOUTPLUSIVA) from actualinvoice where invoiceid
+                                SUM(CHECKOUTPLUSIVA) from detailinvoice where invoiceid
                                 = "' . $invoiceid . '";'
             )
         )[0];
@@ -874,7 +876,6 @@ INVOICE - INVOICE STEP 3
 -----------------------*/
 function
 printinginvoice(
-    $timestamp,
     $invoiceid,
     $voucher
 ) {
@@ -914,7 +915,7 @@ printinginvoice(
     echo ('<h3 class="m-2 p-1 border-bottom" id="stepthree"><b><a href="webmanager.php">
                 <i class="bi bi-arrow-left-circle"></i></a>' . ' ' . $localestrings['invoicestep3'] . '</b></h3>');
     echo ('<div id="checkout" class="bg-light bottom sticky-bottom mx-3">
-        <h3 class="m-3 p-0">' . $localestrings['invoicenumber'] . $invoiceid . ' - ' . $timestamp . '</h3>
+        <h3 class="m-3 p-0">' . $localestrings['invoicenumber'] . $invoiceid . ' - ' . mysqli_fetch_array(mysqli_query($con, "SELECT invoicedate from invoices where invoiceid = '" . $invoiceid . "';"))[0] . '</h3>
         <h5 class="m-2 p-1">
             ' . $localestrings['employee'] . $localestrings['sessionrealname'] . '
             <input type="hidden" value="' . $invoiceid . '" name="actualinvoiceid"></input>
@@ -935,14 +936,14 @@ printinginvoice(
         mysqli_num_rows(
             mysqli_query(
                 $con,
-                'SELECT * FROM actualinvoice where invoiceid = "' . $invoiceid . '";'
+                'SELECT * FROM detailinvoice where invoiceid = "' . $invoiceid . '";'
             )
         ) === 0
     ) {
         echo ("<th scope='row' colspan=6>" . $localestrings['noprodsininvoice'] . "</th>"
         );
     } else {
-        $sqlinvoice = 'select * from actualinvoice where invoiceid = "' . $invoiceid . '";';
+        $sqlinvoice = 'select * from detailinvoice where invoiceid = "' . $invoiceid . '";';
         $resultinvoice = ($con->query($sqlinvoice));
         $rowinvoice = [];
         if ($resultinvoice->num_rows > 0) {
@@ -996,12 +997,12 @@ printinginvoice(
     if (!isset($invoiceid)) {
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
-    } elseif (mysqli_num_rows(mysqli_query($con, 'SELECT checkout FROM actualinvoice where invoiceid = "' . $invoiceid . '";')) === 0) {
+    } elseif (mysqli_num_rows(mysqli_query($con, 'SELECT checkout FROM detailinvoice where invoiceid = "' . $invoiceid . '";')) === 0) {
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
         echo ("<th scope='col'><b>" . $localestrings['priceempty'] . $localestrings['currencies'] . '</b></th>');
     } else {
-        $totalcheckout = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUT) from actualinvoice where invoiceid = "' . $invoiceid . '";'))[0];
-        $totalcheckoutplusiva = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUTPLUSIVA) from actualinvoice where invoiceid = "' . $invoiceid . '";'))[0];
+        $totalcheckout = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUT) from detailinvoice where invoiceid = "' . $invoiceid . '";'))[0];
+        $totalcheckoutplusiva = mysqli_fetch_array(mysqli_query($con, 'SELECT SUM(CHECKOUTPLUSIVA) from detailinvoice where invoiceid = "' . $invoiceid . '";'))[0];
         echo ("<th scope='col'><b>" . $totalcheckout . $localestrings['currencies'] . "</b></th>");
         echo ("<th scope='col'><b>" . $totalcheckoutplusiva . $localestrings['currencies'] . "<b></th>");
     };
@@ -1048,7 +1049,7 @@ printinginvoice(
         mysqli_query(
             $con,
             'SELECT
-                                    SUM(CHECKOUTPLUSIVA) from actualinvoice where invoiceid = ' . $invoiceid . ';'
+                                    SUM(CHECKOUTPLUSIVA) from detailinvoice where invoiceid = ' . $invoiceid . ';'
         )
     )[0];
     $totalcheckoutplusivalessvoucher = $totalcheckoutplusiva - $vouchertotal;
@@ -1057,16 +1058,7 @@ printinginvoice(
                         </tr>');
     echo (" <tr>
                             <td scope='col' colspan='5'>
-                                <form action='uploadinvoice.php' method='POST'>
-                                    <button id='updinv' class='btn btn-primary' type='submit' name='subinv'>" .
-        $localestrings['updinvoice'] . "</button>
                                     <a type='button' class='btn btn-primary' id='crearpdf'>Print Invoice (PDF)</a>
-                                    <input type='hidden' value='" . $invoiceid . "' name='actualinvoiceid'></input>
-                                    <input type='hidden' value='" . $timestamp . "' name='timestamp'></input>
-                                    <input type='hidden' value='" . $voucher . "' name='vouchervalue'></input>
-                                    <input type='hidden' value='" . $totalcheckoutplusivalessvoucher . "'
-                                        name='finalprice'></input>
-                                </form>
                             </td>
                         </tr>
                     </tfoot>
@@ -1383,8 +1375,8 @@ function addprodpage()
 ');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function delprodpage()
@@ -1432,8 +1424,8 @@ function delprodpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function editprodpage()
@@ -1555,8 +1547,8 @@ function editprodpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -1589,8 +1581,8 @@ function addprod($extprodid, $prodname, $fullname, $description, $dateadded, $pr
         header('Location:products.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -1609,8 +1601,8 @@ function delprod($delprodbyid, $delprodbyname)
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 };
 function editprod($selprodbyid, $newrealid, $newprodname, $newfullname, $newproddesc, $newdateadded, $newprice, $newclass, $newtype, $newprodimage)
@@ -1624,8 +1616,8 @@ function editprod($selprodbyid, $newrealid, $newprodname, $newfullname, $newprod
         mysqli_real_query($con, $action);
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -1918,8 +1910,8 @@ function addclasspage()
 </form>');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -1966,8 +1958,8 @@ function delclasspage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2038,8 +2030,8 @@ function editclasspage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2079,8 +2071,8 @@ function addtypepage()
 </form>');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2124,8 +2116,8 @@ function deltypepage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2174,8 +2166,8 @@ function edittypepage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2185,52 +2177,45 @@ INVOICE CREATION / UPDATING / DELETION
 function invoicedataconf($invoiceid)
 {
     $con = dbaccess();
-    if (isset($_POST['productsel'])) {
+    if (isset($_POST['productsel']) && intval($invoiceid) !== 0) {
         $price = mysqli_fetch_array(mysqli_query($con, 'SELECT price from products where prodid = "' . $_POST['productsel'] . '";'))[0];
-        if (mysqli_num_rows(mysqli_query($con, "SELECT prodid from actualinvoice where prodid = '" . $_POST['productsel'] . "' AND invoiceid = '" . $invoiceid . "';")) === 0) {
-            $quantity = 1;
-            $checkout = $price * $quantity;
-            $checkoutplusiva = $checkout + ($checkout * (mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc FROM ivas where ivaid = (SELECT ivaperclass from classlist where classid =(SELECT class from products where prodid ="' . $_POST['productsel'] . '"))')))[0] / 100);
-            mysqli_real_query($con, "INSERT INTO actualinvoice VALUES ('" . $invoiceid . "','" . $_POST['productsel'] . "','" . $price . "','" . $quantity . "','" . $checkout . "','" . $checkoutplusiva . "');");
+        if (mysqli_num_rows(mysqli_query($con, "SELECT prodid from detailinvoice where prodid = '" . $_POST['productsel'] . "' AND invoiceid = '" . $invoiceid . "';")) === 0) {
+            if (mysqli_num_rows(mysqli_query($con, "SELECT invoiceid from invoices where invoiceid = '" . $invoiceid . "';")) === 0) {
+                mysqli_real_query($con, "INSERT INTO invoices VALUES ('" . $invoiceid . "',CURRENT_TIMESTAMP,'" . mysqli_fetch_array(mysqli_query($con, "SELECT userid from users where username = '" . $_SESSION['name'] . "';"))[0] . "');");
+            } else {
+                $quantity = 1;
+                $checkout = $price * $quantity;
+                $checkoutplusiva = $checkout + ($checkout * (mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc FROM ivas where ivaid = (SELECT ivaperclass from classlist where classid =(SELECT class from products where prodid ="' . $_POST['productsel'] . '"))')))[0] / 100);
+                mysqli_real_query($con, "INSERT INTO detailinvoice VALUES ('" . $invoiceid . "','" . $_POST['productsel'] . "','" . $price . "','" . $quantity . "','" . $checkout . "','" . $checkoutplusiva . "');");
+            }
         } else {
-            $oldquantity = mysqli_fetch_array(mysqli_query($con, "SELECT quantity from actualinvoice where invoiceid = '" . $invoiceid . "' AND prodid = '" . $_POST['productsel'] . "';"))[0];
+            $oldquantity = mysqli_fetch_array(mysqli_query($con, "SELECT quantity from detailinvoice where invoiceid = '" . $invoiceid . "' AND prodid = '" . $_POST['productsel'] . "';"))[0];
             $quantity = $oldquantity + 1;
             $checkout = $price * $quantity;
             $checkoutplusiva = $checkout + ($checkout * (mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc FROM ivas where ivaid = (SELECT ivaperclass from classlist where classid =(SELECT class from products where prodid ="' . $_POST['productsel'] . '"))')))[0] / 100);
-            mysqli_real_query($con, "UPDATE actualinvoice set quantity = '" . $quantity . "', checkout = '" . $checkout . "', checkoutplusiva = '" . $checkoutplusiva . "' WHERE prodid = '" . $_POST['productsel'] . "' and invoiceid = '" . $invoiceid . "';");
+            mysqli_real_query($con, "UPDATE detailinvoice set quantity = '" . $quantity . "', checkout = '" . $checkout . "', checkoutplusiva = '" . $checkoutplusiva . "' WHERE prodid = '" . $_POST['productsel'] . "' and invoiceid = '" . $invoiceid . "';");
         }
     } elseif (isset($_POST['delinv'])) {
-        mysqli_real_query($con, 'DELETE FROM actualinvoice where invoiceid = "' . $_POST['actualinvoiceid'] . '";');
+        if(mysqli_num_rows(mysqli_query($con,'SELECT * FROM detailinvoice where invoiceid = "' . $invoiceid . '";'))!==0){
+            mysqli_real_query($con, 'DELETE FROM detailinvoice where invoiceid = "' . $invoiceid . '";');
+            mysqli_real_query($con, 'DELETE FROM invoicediscount where invoiceid = "' . $invoiceid . '";');
+            mysqli_real_query($con, 'DELETE FROM invoices where invoiceid = "' . $invoiceid . '";');
+        }else{
+            mysqli_real_query($con, 'DELETE FROM invoicediscount where invoiceid = "' . $invoiceid . '";');
+            mysqli_real_query($con, 'DELETE FROM invoices where invoiceid = "' . $invoiceid . '";');
+        }
     } elseif (isset($_POST['delprod'])) {
-        $oldquantity = mysqli_fetch_array(mysqli_query($con, 'SELECT quantity from actualinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";'))[0];
+        $oldquantity = mysqli_fetch_array(mysqli_query($con, 'SELECT quantity from detailinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";'))[0];
         $quantity = $oldquantity - 1;
         $price = mysqli_fetch_array(mysqli_query($con, 'SELECT price from products where prodid = "' . $_POST['delprod'] . '";'))[0];
         $checkout = $price * $quantity;
         $checkoutplusiva = $checkout + ($checkout * (mysqli_fetch_array(mysqli_query($con, 'SELECT ivaperc FROM ivas where ivaid = (SELECT ivaperclass from classlist where classid =(SELECT class from products where prodid ="' . $_POST['delprod'] . '"));')))[0] / 100);
-        mysqli_real_query($con, 'UPDATE actualinvoice set quantity = "' . $quantity . '", checkout = "' . $checkout . '", checkoutplusiva = "' . $checkoutplusiva . '" WHERE prodid = "' . $_POST['delprod'] . '"and invoiceid = "' . $invoiceid . '";');
-        if (mysqli_fetch_array(mysqli_query($con, 'SELECT quantity from actualinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";'))[0] <= 0) {
-            mysqli_real_query($con, 'DELETE FROM actualinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";');
+        mysqli_real_query($con, 'UPDATE detailinvoice set quantity = "' . $quantity . '", checkout = "' . $checkout . '", checkoutplusiva = "' . $checkoutplusiva . '" WHERE prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";');
+        if (mysqli_fetch_array(mysqli_query($con, 'SELECT quantity from detailinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";'))[0] <= 0) {
+            mysqli_real_query($con, 'DELETE FROM detailinvoice where prodid = "' . $_POST['delprod'] . '" and invoiceid = "' . $invoiceid . '";');
         }
     };
     header('Location:../manager/webmanager.php');
-};
-
-/*----------------------------
-STEP 4 - UPLOAD INVOICE TO DB
-----------------------------*/
-function uploadinvoice($invoiceid, $timestamp, $discountid, $userid)
-{
-    $con = dbaccess();
-    if ($discountid === '0') {
-        $discountid = NULL;
-    } else {
-        $discountid = $_POST['vouchervalue'];
-    }
-    mysqli_real_query($con, 'INSERT INTO invoicediscount VALUES ("' . $invoiceid . '","' . $discountid . '");');
-    mysqli_real_query($con, 'INSERT INTO invoices VALUES ("' . $invoiceid . '","' . $timestamp . '","' . $userid . '");');
-    mysqli_real_query($con, 'INSERT INTO detailinvoice SELECT * FROM actualinvoice WHERE invoiceid = "' . $invoiceid . '";');
-    mysqli_real_query($con, 'DELETE from actualinvoice where invoiceid = "' . $invoiceid . '";');
-    header('Location:webmanager.php');
 };
 
 /*------------------------------
@@ -2247,8 +2232,8 @@ function addclass($classname, $classivaperc)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2265,8 +2250,8 @@ function delclass($id, $name)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2291,8 +2276,8 @@ function editclass($selclassbyid, $classname, $classivaperc)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2314,8 +2299,8 @@ function addtype($typename)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function deltype($deltypebyid, $deltypebyname)
@@ -2333,8 +2318,8 @@ function deltype($deltypebyid, $deltypebyname)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2358,8 +2343,8 @@ function edittype($seltypebyid, $newtypename)
         header('Location:classtypes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2405,7 +2390,7 @@ function taxes()
                 <tbody class='table-group-divider'>");
     if (mysqli_num_rows(mysqli_query($con, 'SELECT * FROM ivas')) === 0) {
         echo ('<tr>');
-        echo ('<td colspan=3>' . $localestrings['notaxtytes'] . '</td></tr>');
+        echo ('<td colspan=3>' . $localestrings['notaxtypes'] . '</td></tr>');
     } else {
         $sqltaxes = 'select * from ivas';
         $resulttaxes = ($con->query($sqltaxes));
@@ -2527,8 +2512,8 @@ function addtaxpage()
 </form>');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function deltaxpage()
@@ -2571,8 +2556,8 @@ function deltaxpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function edittaxpage()
@@ -2621,8 +2606,8 @@ function edittaxpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2645,8 +2630,8 @@ function addtax($taxname, $taxpercent)
         header('Location:taxes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function deltax($deltaxbyid, $deltaxbyname)
@@ -2664,8 +2649,8 @@ function deltax($deltaxbyid, $deltaxbyname)
         header('Location:taxes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function edittax($seltaxbyid, $newtaxname, $newtaxpercent)
@@ -2691,8 +2676,8 @@ function edittax($seltaxbyid, $newtaxname, $newtaxpercent)
         header('Location:taxes.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -2868,8 +2853,8 @@ function addvoucherpage()
 </form>');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function delvoucherpage()
@@ -2912,8 +2897,8 @@ function delvoucherpage()
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function editvoucherpage()
@@ -2972,8 +2957,8 @@ function editvoucherpage()
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 /*-----------------------------------------
@@ -2994,8 +2979,8 @@ function addvoucher($vouchername, $voucherdiscount, $finaldate)
         header('Location:vouchers.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3014,8 +2999,8 @@ function delvoucher($delvoucherbyid, $delvoucherbyname)
         header('Location:vouchers.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3052,8 +3037,8 @@ function editvoucher($selvoucherbyid, $newvouchername, $newvoucherpercent, $newc
         header('Location:vouchers.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3309,8 +3294,8 @@ function usersadmpage()
 </html>");
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 /*-----------------
@@ -3359,8 +3344,8 @@ function adduserpage()
 </form>');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function deluserpage()
@@ -3405,8 +3390,8 @@ function deluserpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3430,8 +3415,8 @@ function adduser($username, $userrealname, $passwordunenc)
         header('Location:users.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3453,8 +3438,8 @@ function deluser($deluserbyid, $deluserbyname)
         header('Location:users.php');
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3569,8 +3554,8 @@ function langchangepage()
     </html>");
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3631,8 +3616,8 @@ function langchange()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3765,8 +3750,8 @@ function invoicespage()
     </html>");
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3809,8 +3794,8 @@ function searchinvoicebyidpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function searchinvoicedatepage()
@@ -3849,8 +3834,8 @@ function searchinvoicedatepage()
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function searchinvoicedaterangepage()
@@ -3893,8 +3878,8 @@ function searchinvoicedaterangepage()
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function searchinvoicebydiscountvoucherpage()
@@ -3951,8 +3936,8 @@ function searchinvoicebydiscountvoucherpage()
         };
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -3989,8 +3974,8 @@ function searchinvoicebydate($dateadded)
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function searchinvoicebyrange($datestart, $dateend)
@@ -4008,8 +3993,8 @@ function searchinvoicebyrange($datestart, $dateend)
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 function searchinvoicebydiscountvoucher($vouchid)
@@ -4024,8 +4009,8 @@ function searchinvoicebydiscountvoucher($vouchid)
         }
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -4102,8 +4087,8 @@ function search($action)
     ");
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 }
 
@@ -4259,7 +4244,7 @@ function advancedinvoiceinfo($invoiceid)
                                 </table>");
     } else {
         global $localestrings;
-        echo ($localestrings['noadmnoaccess']);
-        echo ("<button type='button' class='btn btn-primary'><a href='../manager/webmanager.php'>" . $localestrings['goback'] . "</a></button>");
+        echo ('<p>' . $localestrings['noadmnoaccess'] . '</p>');
+        echo ("<a href='../manager/webmanager.php'><button type='button' class='btn btn-primary'>" . $localestrings['goback'] . "</button></a>");
     }
 };

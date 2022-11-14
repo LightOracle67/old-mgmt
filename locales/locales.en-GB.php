@@ -100,7 +100,7 @@ function lang( string $localecode )
             'inttaxid' => 'Internal Tax ID',
             'printinvoice' => 'Print Invoice (PDF)',
             'taxpercent' => 'Tax Percent (%)',
-            'notaxtytes' => 'There are no taxes available. When you add one, it will appear here.',
+            'notaxtypes' => 'There are no taxes available. When you add one, it will appear here.',
             'taxes2show' => ') internal tax(es) to show',
             'advtaxoptsonlyforadms' => 'Advanced Tax options are only available for Administrators.',
             'notaxestodel' => 'Could not find any Taxes to delete. Add one or more from the "Add Tax" tab.',
@@ -189,10 +189,15 @@ function lang( string $localecode )
             'selinvoice' => 'Invoice Selection',
             'details2showfrominvoices' => ') detail(s) to show from `invoices`',
             'details2showfrominvoicediscount' => ') detail(s) to show from `invoicediscount`',
+            'nodetails2show' => 'There are no invoice details to show here. Add one product or more to this invoice, and try again.',
             'vouchersapplied' => ') discount voucher(s) applied',
             'invoicedetailedinfo' => 'Detailed Invoice Information',
             'noadmnoaccess' => 'Your user can not be identified as Administrator. You can not access this section.',
-            'goback' => 'Go Back'
+            'goback' => 'Go Back',
+            'noselinv' => 'N/A',
+            'changeinvoice' => 'Change Invoice',
+            'newinvoice' => 'New Invoice',
+            'datetime' => 'Date & Time: '
         ];
     }
     ;

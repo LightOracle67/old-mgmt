@@ -6,6 +6,6 @@ if ( !isset( $_POST[ 'actualinvoiceid' ] ) || $_POST[ 'actualinvoiceid' ] === ''
 } else {
 $localestrings = locales(0);
 navtop($localestrings);
-printinginvoice($_POST['timestamp'],$_POST['actualinvoiceid'],$_POST['vouchervalue']);
+printinginvoice(intval($_POST['actualinvoiceid']),intval($_POST['vouchervalue']));
 };
 ?>
